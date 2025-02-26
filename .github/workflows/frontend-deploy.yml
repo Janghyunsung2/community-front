@@ -32,18 +32,14 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
 
-
       - name: Debug SSH Key
         run: |
           ls -l ~/.ssh
-          head -n 5 ~/.ssh/id_rsa  # 첫 5줄 출력, 시작이 "-----BEGIN RSA PRIVATE KEY-----"인지 확인
-
-
-
+          head -n 5 ~/.ssh/id_rsa  # SSH Key 앞 5줄 확인
 
       - name: Deploy to EC2
         run: |
-          ssh -T -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
           
           # 1. Nginx 설치 및 설정
           sudo yum update -y
@@ -54,15 +50,16 @@ jobs:
           # 2. 기존 프론트엔드 파일 삭제 및 새 빌드 파일 배포
           sudo rm -rf /var/www/html/*
           sudo mkdir -p /var/www/html
-          
+          sudo chown -R ontheit:ontheit /var/www/html
+
           # 3. Git Clone or Pull 최신 코드 가져오기
           cd /home/ontheit || exit
           
-          if [ ! -d "app" ]; then
-            git clone git@github.com:janghyunsung2/community.git app || exit 1
+          if [ ! -d "frontend-app" ]; then
+            git clone git@github.com:janghyunsung2/community-front.git frontend-app || exit 1
           fi
           
-          cd app
+          cd frontend-app
           git checkout main
           git pull origin main
 
@@ -93,5 +90,7 @@ jobs:
               }
           }
           EOT
+          
+          # 7. Nginx 재시작
           sudo systemctl restart nginx
           EOF
