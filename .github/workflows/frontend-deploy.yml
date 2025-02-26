@@ -50,6 +50,8 @@ jobs:
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
+
+          while true; do echo "SSH 세션 유지 중 ..."; sleep 30; done &
           
           # 1. Nginx 설치 및 설정
           sudo yum update -y
