@@ -17,14 +17,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-      
-      - name: Install Node.js on EC2
-        run: |
-          ssh -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
-          curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
-          sudo yum install -y nodejs
-          EOF
-
 
       - name: Install Dependencies & Build
         run: |
@@ -40,17 +32,20 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
 
-
-
       - name: Debug SSH Key
         run: |
           ls -l ~/.ssh
-          head -n 5 ~/.ssh/id_rsa  # 첫 5줄 출력해서 제대로 저장되었는지 확인
-          
+          head -n 5 ~/.ssh/id_rsa  
+
       - name: Test SSH Connection
         run: ssh -v -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} "echo 'SSH 연결 성공!'"
 
-
+      - name: Install Node.js on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
+          curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
+          sudo yum install -y nodejs
+          EOF
 
       - name: Deploy to EC2
         run: |
@@ -71,7 +66,7 @@ jobs:
           cd /home/ontheit || exit
           
           if [ ! -d "frontend-app" ]; then
-          git clone https://github.com/janghyunsung2/community-front.git frontend-app
+            git clone https://github.com/janghyunsung2/community-front.git frontend-app || exit 1
           fi
           
           cd frontend-app
