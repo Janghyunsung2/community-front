@@ -28,14 +28,15 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | awk '{print $0 "\n"}' > ~/.ssh/id_rsa
+          printf "%b" "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+
 
       - name: Debug SSH Key
         run: |
           ls -l ~/.ssh
-          cat ~/.ssh/id_rsa | head -n 5  # 보안상 전체 공개 금지!
+          head -n 5 ~/.ssh/id_rsa  # 첫 5줄 출력, 시작이 "-----BEGIN RSA PRIVATE KEY-----"인지 확인
 
 
 
