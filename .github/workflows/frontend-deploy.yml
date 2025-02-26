@@ -26,14 +26,14 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
 
       - name: Deploy to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
+          ssh -T -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
           
           # 1. Nginx 설치 및 설정
           sudo yum update -y
@@ -60,7 +60,7 @@ jobs:
           npm install
           npm run build
 
-          # 5. 빌드된 파일을 Nginx 경로로 이동 (Vue/React 구분 필요)
+          # 5. 빌드된 파일을 Nginx 경로로 이동
           sudo cp -r dist/* /var/www/html/
 
           # 6. Nginx 설정 추가 및 재시작
@@ -77,5 +77,4 @@ jobs:
           }
           EOT
           sudo systemctl restart nginx
-
           EOF
