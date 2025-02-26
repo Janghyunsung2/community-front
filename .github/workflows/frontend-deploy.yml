@@ -28,9 +28,16 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | awk '{print $0 "\n"}' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Debug SSH Key
+        run: |
+          ls -l ~/.ssh
+          cat ~/.ssh/id_rsa | head -n 5  # 보안상 전체 공개 금지!
+
+
 
 
       - name: Deploy to EC2
