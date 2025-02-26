@@ -1,0 +1,61 @@
+name: CI/CD for Frontend
+
+on:
+  push:
+    branches:
+      - main  # main 브랜치에 Push될 때 실행
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Dependencies & Build
+        run: |
+          npm install
+          npm run build
+
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
+          
+          # 1. Nginx 설치 및 설정
+          sudo yum update -y
+          sudo yum install -y nginx
+          sudo systemctl start nginx
+          sudo systemctl enable nginx
+
+          # 2. 기존 프론트엔드 파일 삭제 및 새 빌드 파일 배포
+          sudo rm -rf /var/www/html/*
+          sudo mkdir -p /var/www/html
+          
+          # 3. Git Clone or Pull 최신 코드 가져오기
+          cd /home/ontheit || exit
+          
+          if [ ! -d "frontend" ]; then
+            git clone git@github.com:YOUR_GITHUB_USERNAME/your-frontend-repo.git frontend
+          fi
+          
+          cd frontend
+          git checkout main
+          git pull origin main
+
+          # 4. 프론트엔드 빌드
+          npm install
+          npm run build
+
+          # 5. 빌드된 파일을 Nginx 경로로 이동
+          sudo cp -r dist/* /var/www/html/
+
+          # 6. Nginx 재시작
+          sudo systemctl restart nginx
+
+          EOF
