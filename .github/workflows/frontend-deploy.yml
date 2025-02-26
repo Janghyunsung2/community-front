@@ -28,10 +28,9 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | awk '{print $0 "\n"}' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Deploy to EC2
         run: |
@@ -51,7 +50,7 @@ jobs:
           cd /home/ontheit || exit
           
           if [ ! -d "app" ]; then
-            git clone git@github.com:janghyunsung2/community.git app || exit 1
+            git clone https://github.com/janghyunsung2/community.git app || exit 1
           fi
           
           cd app
@@ -59,10 +58,10 @@ jobs:
           git pull origin main
 
           # 4. 프론트엔드 빌드
-          npm install
+          npm ci
           npm run build
 
-          # 5. 빌드된 파일을 Nginx 경로로 이동
+          # 5. 빌드된 파일을 Nginx 경로로 이동 (Vue/React 자동 감지)
           if [ -d "dist" ]; then
             sudo cp -r dist/* /var/www/html/
           elif [ -d "build" ]; then
@@ -71,8 +70,7 @@ jobs:
             echo "❌ 빌드된 폴더를 찾을 수 없습니다!" && exit 1
           fi
 
-
-          # 6. Nginx 설정 추가 및 재시작
+          # 6. 기존 Nginx 설정 백업 후 새로운 설정 적용
           sudo mv /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.backup || true
           sudo tee /etc/nginx/conf.d/frontend.conf > /dev/null <<EOT
           server {
@@ -87,5 +85,4 @@ jobs:
           }
           EOT
           sudo systemctl restart nginx
-
           EOF
