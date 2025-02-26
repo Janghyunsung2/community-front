@@ -41,7 +41,7 @@ jobs:
           cd /home/ontheit || exit
           
           if [ ! -d "frontend" ]; then
-            git clone git@github.com:YOUR_GITHUB_USERNAME/your-frontend-repo.git frontend
+            git clone git@github.com:janghyunsung2/community.git app || exit 1
           fi
           
           cd frontend
