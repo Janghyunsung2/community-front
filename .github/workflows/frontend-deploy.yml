@@ -26,9 +26,9 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          printf "%s" "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Deploy to EC2
         run: |
@@ -47,11 +47,11 @@ jobs:
           # 3. Git Clone or Pull 최신 코드 가져오기
           cd /home/ontheit || exit
           
-          if [ ! -d "frontend" ]; then
-            git clone git@github.com:janghyunsung2/community-front.git app || exit 1
+          if [ ! -d "app" ]; then
+            git clone https://github.com/janghyunsung2/community-front.git app || exit 1
           fi
           
-          cd frontend
+          cd app
           git checkout main
           git pull origin main
 
@@ -59,10 +59,22 @@ jobs:
           npm install
           npm run build
 
-          # 5. 빌드된 파일을 Nginx 경로로 이동
+          # 5. 빌드된 파일을 Nginx 경로로 이동 (Vue/React 구분 필요)
           sudo cp -r dist/* /var/www/html/
 
-          # 6. Nginx 재시작
+          # 6. Nginx 설정 추가 및 재시작
+          sudo tee /etc/nginx/conf.d/frontend.conf > /dev/null <<EOT
+          server {
+              listen 80;
+              server_name _;
+              root /var/www/html;
+              index index.html;
+              
+              location / {
+                  try_files \$uri /index.html;
+              }
+          }
+          EOT
           sudo systemctl restart nginx
 
           EOF
