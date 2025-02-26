@@ -28,14 +28,20 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          printf "%b" "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+
 
       - name: Debug SSH Key
         run: |
           ls -l ~/.ssh
-          head -n 5 ~/.ssh/id_rsa  # SSH Key 앞 5줄 확인
+          head -n 5 ~/.ssh/id_rsa  # 첫 5줄 출력해서 제대로 저장되었는지 확인
+          
+      - name: Test SSH Connection
+        run: ssh -v -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} "echo 'SSH 연결 성공!'"
+
+
 
       - name: Deploy to EC2
         run: |
