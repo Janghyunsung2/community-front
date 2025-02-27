@@ -68,14 +68,18 @@ jobs:
           sudo tee /etc/nginx/conf.d/frontend.conf > /dev/null <<EOT
           server {
               listen 80;
-              server_name www.ontheit.site;
-              root /var/www/html;
-              index index.html;
-              
+              server_name www.ontheit.site; # 도메인 입력
+
               location / {
-                  try_files \$uri /index.html;
+                  proxy_pass http://localhost:3000; # Next.js 실행 포트
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade $http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host $host;
+                  proxy_cache_bypass $http_upgrade;
               }
           }
+
           EOT
 
           # 4. Nginx 설정 테스트 및 재시작
