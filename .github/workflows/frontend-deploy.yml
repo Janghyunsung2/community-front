@@ -22,15 +22,23 @@ jobs:
         run: |
           npm ci
           npm run build
+
+          # 빌드 확인
+          if [ ! -d "./build" ] || [ -z "$(ls -A ./build)" ]; then
+            echo "Build directory is missing or empty!"
+            exit 1
+          fi
+
+          ls -l ./build/
         env:
           CI: true
 
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > "$HOME/.ssh/id_rsa"
-          chmod 600 "$HOME/.ssh/id_rsa"
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> "$HOME/.ssh/known_hosts"
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy Build Files to EC2
         run: |
@@ -40,17 +48,21 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
           
-          # 1. Nginx 설치 및 설정
+          # 1. Nginx 설치 및 시작
           sudo yum update -y
           sudo yum install -y nginx
-          sudo systemctl start nginx
           sudo systemctl enable nginx
+          sudo systemctl start nginx || sudo systemctl restart nginx
 
           # 2. 기존 프론트엔드 파일 삭제 후 새 빌드 배포
-          sudo rm -rf /var/www/html/*
-          sudo mkdir -p /var/www/html
+          if [ -d "/var/www/html" ]; then
+            sudo rm -rf /var/www/html/*
+          else
+            sudo mkdir -p /var/www/html
+          fi
+          
           sudo cp -r /home/ontheit/frontend-build/* /var/www/html/
-          sudo chown -R ontheit:ontheit /var/www/html
+          sudo chown -R nginx:nginx /var/www/html  # nginx 사용자로 소유권 변경
 
           # 3. Nginx 설정 적용
           sudo tee /etc/nginx/conf.d/frontend.conf > /dev/null <<EOT
@@ -65,7 +77,7 @@ jobs:
               }
           }
           EOT
-          
-          # 4. Nginx 재시작
-          sudo systemctl restart nginx
+
+          # 4. Nginx 설정 테스트 및 재시작
+          sudo nginx -t && sudo systemctl restart nginx
           EOF
