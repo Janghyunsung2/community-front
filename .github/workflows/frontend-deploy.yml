@@ -65,22 +65,40 @@ jobs:
           sudo chown -R nginx:nginx /var/www/html  # nginx 사용자로 소유권 변경
 
           # 3. Nginx 설정 적용
-          sudo tee /etc/nginx/conf.d/frontend.conf > /dev/null <<EOT
+          sudo tee /etc/nginx/conf.d/domain.conf > /dev/null <<EOT
           server {
               listen 80;
-              server_name www.ontheit.site; # 도메인 입력
-
-              location / {
-                  proxy_pass http://localhost:3000; # Next.js 실행 포트
-                  proxy_http_version 1.1;
-                  proxy_set_header Upgrade $http_upgrade;
-                  proxy_set_header Connection "Upgrade";
-                  proxy_set_header Host $host;
-                  proxy_set_header X-Real-IP $remote_addr;
-                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                  proxy_set_header X-Forwarded-Proto $scheme;
-              }
+              listen [::]:80;
+              server_name www.ontheit.site ontheit.site; // 도메인 명
+                  
+            // 301은 리다이렉트를 의미
+            // 사용자가 http(80번 포트)로 들어오면 https(443)로 리다이렉트 해줌
+            return 301 https://$host$request_uri;
           }
+
+
+
+          server {
+            listen [::]:443 ssl;
+            listen 443;
+
+            server_name www.ontheit.site ontheit.site;
+            root /var/www/html/; // 프로젝트 디렉토리
+
+            location / {
+                  proxy_pass http://localhost:3000; // 4000번에서 실행 중인 nextjs 프로젝트로 연결
+            }
+
+            ssl on;
+            ssl_certificate /etc/ssl/domain.crt;  // 위에서
+            ssl_certificate_key /etc/ssl/domain.rsa;
+            ssl_prefer_server_ciphers on;
+
+          }
+
+
+
+
 
           EOT
 
