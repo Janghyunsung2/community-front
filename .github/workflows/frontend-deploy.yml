@@ -27,15 +27,17 @@ jobs:
 
       - name: Set up SSH
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-          
+          # Remove .ssh if it's a file, then create the directory
+          if [ -f "$HOME/.ssh" ]; then rm "$HOME/.ssh"; fi
+          mkdir -p "$HOME/.ssh"
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > "$HOME/.ssh/id_rsa"
+          chmod 600 "$HOME/.ssh/id_rsa"
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> "$HOME/.ssh/known_hosts"
+
       - name: Debug SSH Key
         run: |
-          ls -l ~/.ssh
-          head -n 5 ~/.ssh/id_rsa  
+          ls -l "$HOME/.ssh"
+          head -n 5 "$HOME/.ssh/id_rsa"
 
       - name: Test SSH Connection
         run: ssh -v -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} "echo 'SSH 연결 성공!'"
