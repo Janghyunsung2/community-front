@@ -47,7 +47,7 @@ jobs:
       - name: Set up and Restart Nginx on EC2
         run: |
           ssh -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
-          
+
           # 1. Nginx 설치 및 시작
           sudo yum update -y
           sudo yum install -y nginx
@@ -64,11 +64,11 @@ jobs:
           sudo cp -r /home/ontheit/frontend-build/* /var/www/html/
           sudo chown -R nginx:nginx /var/www/html  # nginx 사용자로 소유권 변경
 
-          # 3. Nginx 설정 적용
+          # 3. Nginx 설정 적용 (도메인 연결)
           sudo tee /etc/nginx/conf.d/frontend.conf > /dev/null <<EOT
           server {
               listen 80;
-              server_name _;
+              server_name www.ontheit.site;
               root /var/www/html;
               index index.html;
               
@@ -76,6 +76,12 @@ jobs:
                   try_files \$uri /index.html;
               }
           }
+          EOT
+
+          # 4. Nginx 설정 테스트 및 재시작
+          sudo nginx -t && sudo systemctl restart nginx
+          EOF
+
           EOT
 
           # 4. Nginx 설정 테스트 및 재시작
