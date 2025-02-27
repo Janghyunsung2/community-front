@@ -67,8 +67,8 @@ jobs:
           # 3. Nginx 설정 적용
           sudo tee /etc/nginx/conf.d/domain.conf > /dev/null <<EOT
           server {
-              listen 80;
-              listen [::]:80;
+              listen 80 ssl;
+              listen [::]:80 ssl;
               server_name www.ontheit.site ontheit.site;
               
             return 301 https://$host$request_uri;
