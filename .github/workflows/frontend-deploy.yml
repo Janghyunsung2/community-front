@@ -27,7 +27,6 @@ jobs:
 
       - name: Set up SSH
         run: |
-          mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
@@ -50,8 +49,6 @@ jobs:
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
-
-          while true; do echo "SSH 세션 유지 중 ..."; sleep 30; done &
           
           # 1. Nginx 설치 및 설정
           sudo yum update -y
