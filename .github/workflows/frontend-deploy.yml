@@ -40,6 +40,16 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Run Next.js Server on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
+          cd /var/www/html/
+          npm install --production
+          pm2 stop nextjs || true
+          pm2 start npm --name "nextjs" -- start
+          EOF
+
+
       - name: Deploy Build Files to EC2
         run: |
           rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./build/ ontheit@${{ secrets.EC2_HOST }}:/home/ontheit/frontend-build/
