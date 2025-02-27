@@ -65,36 +65,7 @@ jobs:
           sudo chown -R nginx:nginx /var/www/html  
 
           # 3. Nginx 설정 적용
-          sudo tee /etc/nginx/conf.d/domain.conf > /dev/null <<EOT
-          server {
-              listen 80;
-              listen [::]:80;
-              server_name www.ontheit.site ontheit.site;
-              
-            return 301 https://$host$request_uri;
-          }
-
-
-
-          server {
-            listen [::]:443;
-            listen 443;
-
-            server_name www.ontheit.site ontheit.site;
-            root /var/www/html/; 
-
-            location / {
-                  proxy_pass http://localhost:3000; 
-            }
-
-            ssl_certificate /etc/ssl/domain.crt; 
-            ssl_certificate_key /etc/ssl/domain.rsa;
-            ssl_prefer_server_ciphers on;
-
-          }
-
-
-          EOT
+          
 
           # 4. Nginx 설정 테스트 및 재시작
           sudo nginx -t && sudo systemctl restart nginx
