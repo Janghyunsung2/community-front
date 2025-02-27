@@ -81,7 +81,7 @@ jobs:
             listen 443;
 
             server_name www.ontheit.site ontheit.site;
-            root /var/www/html/; // 프로젝트 디렉토리
+            root /var/www/html/; 
 
             location / {
                   proxy_pass http://localhost:3000; 
