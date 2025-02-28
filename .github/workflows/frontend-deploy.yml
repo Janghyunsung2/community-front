@@ -29,7 +29,7 @@ jobs:
             exit 1
           fi
 
-          ls -l ./build/
+          ls -l ./next/
         env:
           CI: true
 
