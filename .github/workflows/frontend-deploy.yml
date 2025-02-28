@@ -46,16 +46,16 @@ jobs:
 
       - name: Deploy Build Files to EC2
         run: |
-          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" $(pwd)/.next/ ontheit@${{ secrets.EC2_HOST }}:/home/ontheit/frontend-build/.next/
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" $(pwd) ontheit@${{ secrets.EC2_HOST }}:/home/ontheit/community-front/
 
       - name: Run Next.js Server on EC2
         run: |
           ssh -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
-          cd /var/www/html/
+          cd /home/ontheit/community-front/
 
           # 권한 문제 해결
-          sudo chown -R ontheit:ontheit /var/www/html
-          sudo chmod -R 775 /var/www/html
+          sudo chown -R ontheit:ontheit /home/ontheit/community-front
+          sudo chmod -R 775 /home/ontheit/community-front
           
           npm install --omit=dev
           
@@ -82,33 +82,63 @@ jobs:
           sudo systemctl enable nginx
           sudo systemctl start nginx || sudo systemctl restart nginx
 
-          # 2. 기존 프론트엔드 파일 삭제 후 새 빌드 배포
-          if [ -d "/var/www/html" ]; then
-            sudo rm -rf /var/www/html/*
-          else
-            sudo mkdir -p /var/www/html
-          fi
-          
-          sudo cp -r /home/ontheit/frontend-build/.next /var/www/html/
-          sudo chown -R nginx:nginx /var/www/html  
-
-          # 3. Nginx 설정 파일 적용 (프록시 설정 추가)
+          # 2. Nginx 설정 파일 적용 (프록시 설정 추가)
           sudo bash -c 'cat > /etc/nginx/conf.d/frontend.conf <<EOF
           server {
               listen 80;
               server_name your-domain.com;  # 도메인 또는 IP 수정
+              return 301 https://\$host\$request_uri;  # HTTPS로 강제 리디렉션
+          }
+
+          server {
+              listen 443 ssl;
+              server_name your-domain.com;  # 도메인 또는 IP 수정
+
+              ssl_certificate /etc/letsencrypt/live/your-domain.com/fullchain.pem;
+              ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
 
               location / {
-                  proxy_pass http://localhost:3000;
+                  proxy_pass http://127.0.0.1:3000;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade \$http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host \$host;
+                  proxy_cache_bypass \$http_upgrade;
+                  
+                  # WebSocket 지원
+                  proxy_set_header X-Real-IP \$remote_addr;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto \$scheme;
+              }
+
+              location /_next/ {
+                  proxy_pass http://127.0.0.1:3000;
                   proxy_http_version 1.1;
                   proxy_set_header Upgrade \$http_upgrade;
                   proxy_set_header Connection 'upgrade';
                   proxy_set_header Host \$host;
                   proxy_cache_bypass \$http_upgrade;
               }
+
+              location /static/ {
+                  root /home/ontheit/community-front/public;
+                  index index.html;
+                  expires max;
+                  access_log off;
+              }
+
+              location /socket.io/ {
+                  proxy_pass http://127.0.0.1:3000;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade \$http_upgrade;
+                  proxy_set_header Connection "Upgrade";
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+              }
+
+              error_page 404 /404.html;
           }
           EOF'
           
-          # 4. Nginx 설정 테스트 및 재시작
+          # 3. Nginx 설정 테스트 및 재시작
           sudo nginx -t && sudo systemctl restart nginx
           EOF
