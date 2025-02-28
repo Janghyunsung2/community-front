@@ -37,7 +37,6 @@ jobs:
         env:
           CI: true
 
-
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
@@ -45,21 +44,33 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Deploy Build Files to EC2
+        run: |
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" $(pwd)/.next/ ontheit@${{ secrets.EC2_HOST }}:/home/ontheit/frontend-build/.next/
+
       - name: Run Next.js Server on EC2
         run: |
           ssh -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
           cd /var/www/html/
+
+          # 권한 문제 해결
+          sudo chown -R ontheit:ontheit /var/www/html
+          sudo chmod -R 775 /var/www/html
+          
           npm install --omit=dev
+          
+          # 기존 PM2 프로세스 종료 후 다시 실행
           pm2 delete nextjs || true
           pm2 start npm --name "nextjs" -- start
           pm2 save --force
-          sudo systemctl restart pm2-ontheit
+          
+          # PM2 자동 실행 설정 (최초 1회 필요)
+          if ! systemctl list-units --full -all | grep -q "pm2-ontheit.service"; then
+            sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u ontheit --hp /home/ontheit
+            sudo systemctl enable pm2-ontheit
+          fi
+
           EOF
-
-
-      - name: Deploy Build Files to EC2
-        run: |
-          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" $(pwd)/.next/ ontheit@${{ secrets.EC2_HOST }}:/home/ontheit/frontend-build/
 
       - name: Set up and Restart Nginx on EC2
         run: |
@@ -78,12 +89,26 @@ jobs:
             sudo mkdir -p /var/www/html
           fi
           
-          sudo cp -r /home/ontheit/frontend-build/* /var/www/html/
+          sudo cp -r /home/ontheit/frontend-build/.next /var/www/html/
           sudo chown -R nginx:nginx /var/www/html  
 
-          # 3. Nginx 설정 적용
-          
+          # 3. Nginx 설정 파일 적용 (프록시 설정 추가)
+          sudo bash -c 'cat > /etc/nginx/conf.d/frontend.conf <<EOF
+          server {
+              listen 80;
+              server_name your-domain.com;  # 도메인 또는 IP 수정
 
+              location / {
+                  proxy_pass http://localhost:3000;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade \$http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host \$host;
+                  proxy_cache_bypass \$http_upgrade;
+              }
+          }
+          EOF'
+          
           # 4. Nginx 설정 테스트 및 재시작
           sudo nginx -t && sudo systemctl restart nginx
           EOF
