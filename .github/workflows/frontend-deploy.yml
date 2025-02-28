@@ -53,8 +53,7 @@ jobs:
           pm2 delete nextjs || true
           pm2 start npm --name "nextjs" -- start
           pm2 save --force
-
-          pm2 startup
+          sudo systemctl restart pm2-ontheit
           EOF
 
 
