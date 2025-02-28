@@ -21,7 +21,7 @@ const withAdminAuth = (WrappedComponent) => {
           console.log('사용자 역할:', userRole);
 
           // 2) 권한 체크
-          if (userRole === 'ROLE_ADMIN') {
+          if (userRole.nickname === '관리자') {
             if (isMounted) setIsAuthorized(true);
           } else {
             console.warn('관리자 권한 없음, /unauthorized로 이동');

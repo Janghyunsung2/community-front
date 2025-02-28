@@ -47,6 +47,8 @@ jobs:
           npm install --production
           pm2 stop nextjs || true
           pm2 start npm --name "nextjs" -- start
+          pm2 save
+          pm2 startup
           EOF
 
 
