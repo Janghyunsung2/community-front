@@ -22,16 +22,21 @@ jobs:
         run: |
           npm ci
           npm run build
-
-          # Next.js는 .next/ 폴더에 빌드 결과를 저장함
+          
+          # 빌드 후 디렉토리 확인
+          echo "Checking build directory..."
+          ls -la
+          
+          # .next 디렉토리가 있는지 확인
           if [ ! -d "./.next" ] || [ -z "$(ls -A ./.next)" ]; then
             echo "Build directory (.next) is missing or empty!"
             exit 1
           fi
-
-          ls -l ./next/
+          
+          ls -l .next/
         env:
           CI: true
+
 
       - name: Set up SSH
         run: |
@@ -54,7 +59,7 @@ jobs:
 
       - name: Deploy Build Files to EC2
         run: |
-          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./.next/ ontheit@${{ secrets.EC2_HOST }}:/home/ontheit/frontend-build/
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" $(pwd)/.next/ ontheit@${{ secrets.EC2_HOST }}:/home/ontheit/frontend-build/
 
       - name: Set up and Restart Nginx on EC2
         run: |
