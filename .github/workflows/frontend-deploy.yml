@@ -49,7 +49,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
           cd /var/www/html/
-          npm install --production
+          npm install --omit=dev
           pm2 stop nextjs || true
           pm2 start npm --name "nextjs" -- start
           pm2 save
