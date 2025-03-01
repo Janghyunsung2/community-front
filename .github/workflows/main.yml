@@ -31,9 +31,9 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to EC2
-        run: |
-            ssh -tt @${{ secrets.EC2_HOST }} << 'EOF'
+          - name: Deploy to EC2
+          run: |
+            ssh -tt ec2-user@${{ secrets.EC2_HOST }} << 'EOF'
             cd /home/ontheit/community-front
             git pull origin main
             npm install
