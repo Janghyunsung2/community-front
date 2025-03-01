@@ -33,8 +33,8 @@ jobs:
 
       - name: Deploy to EC2
         run: |
-            ssh -tt ontheit@${{ secrets.EC2_HOST }} << 'EOF'
-            cd /home/ontheit/my-next-app
+            ssh -tt @${{ secrets.EC2_HOST }} << 'EOF'
+            cd /home/ontheit/community-front
             git pull origin main
             npm install
             npm run build
