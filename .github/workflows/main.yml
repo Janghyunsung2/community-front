@@ -33,14 +33,25 @@ jobs:
 
       - name: Deploy to EC2
         run: |
-            ssh -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
-            cd /home/ontheit/community-front
-            git pull origin main
-            npm install
-            npm run build
-            
-            # 기존 프로세스 종료 후 재시작 (메모리 제한 적용)
-            pm2 delete next-app || true
-            pm2 start npm --name "next-app" -- start --node-args="--max-old-space-size=512"
-            EOF
-
+          ssh -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
+          
+          # 프로젝트 폴더 이동 또는 클론
+          cd /home/ontheit || exit
+          
+          if [ ! -d "community-front" ]; then
+            git clone git@github.com:YOUR_GITHUB_USERNAME/YOUR_REPO.git community-front
+          fi
+          
+          cd community-front
+          git checkout main
+          git pull origin main
+          
+          # 패키지 설치 및 빌드
+          npm install
+          npm run build
+          
+          # 기존 프로세스 종료 후 재시작 (메모리 제한 적용)
+          pm2 delete next-app || true
+          pm2 start npm --name "next-app" -- start --node-args="--max-old-space-size=512"
+          
+          EOF
