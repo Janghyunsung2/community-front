@@ -38,5 +38,8 @@ jobs:
           git pull origin main
           npm install
           npm run build
-          pm2 restart next-app || pm2 start npm --name "next-app" -- start
+          
+          # 기존 프로세스 종료 후 재시작 (메모리 제한 적용)
+          pm2 delete next-app || true
+          pm2 start npm --name "next-app" -- start --node-args="--max-old-space-size=512"
           EOF
