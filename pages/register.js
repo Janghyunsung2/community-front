@@ -73,7 +73,7 @@ export default function Register() {
   // 이메일 인증 요청
   const sendEmailVerification = async () => {
     try {
-      await api.post(`${SEND_EMAIL_API}?email=${form.email}`, {}, { withCredentials: true });
+      await api.post(`${SEND_EMAIL_API}?email=${form.email}`, {}, { withCredentials: true , headers: { "Content-Type": "application/json" }});
       setEmailSent(true);
       alert("인증 이메일이 발송되었습니다.");
     } catch (err) {
@@ -88,6 +88,7 @@ export default function Register() {
       const response = await api.post(VERIFY_EMAIL_API, {
         email: form.email,
         code: form.verificationCode,
+        headers: { "Content-Type": "application/json" }
       });
       if (response.status === 200) {
         setEmailVerified(true);

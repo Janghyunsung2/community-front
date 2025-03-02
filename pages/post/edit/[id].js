@@ -30,7 +30,7 @@ export default function EditPost() {
     setError(null);
 
     try {
-      await api.put(`${API_URL}/${id}`, post, { withCredentials: true }); // ✅ JWT 쿠키 인증 추가
+      await api.put(`${API_URL}/${id}`, post, { withCredentials: true , headers: { "Content-Type": "application/json" }}); // ✅ JWT 쿠키 인증 추가
       router.push(`/post/${id}`); // ✅ 수정 후 상세 페이지로 이동
     } catch (err) {
       console.error("게시글 수정 실패:", err);

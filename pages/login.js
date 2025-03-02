@@ -20,7 +20,8 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      await api.post(LOGIN_API, form, { withCredentials: true }); // ✅ 쿠키 인증 활성화
+      await api.post(LOGIN_API, form, { withCredentials: true ,   headers: { "Content-Type": "application/json" }}
+      ); // ✅ 쿠키 인증 활성화
       console.log("로그인 성공");
       setUser(true);
 

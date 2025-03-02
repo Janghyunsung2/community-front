@@ -39,7 +39,7 @@ const BoardPage = () => {
   // 게시판 수정
   const updateBoard = async (id) => {
     try {
-      await api.put(`/api/admin/boards?id=${id}`, editBoardData);
+      await api.put(`/api/admin/boards?id=${id}`, editBoardData,{ headers: { "Content-Type": "application/json" }});
       setEditBoardId(null);
       setEditBoardData({ title: '', description: '', active: false });
       fetchBoards(currentPage);

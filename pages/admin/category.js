@@ -37,6 +37,7 @@ const CategoryPage = () => {
     try {
       await api.put(`/api/admin/categories?id=${id}`, {
         name: editCategoryName,
+        headers: { "Content-Type": "application/json" }
       });
       setEditCategoryId(null);
       setEditCategoryName('');

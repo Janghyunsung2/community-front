@@ -36,7 +36,7 @@ export default function MemberUpdate() {
       const response = await axios.post(
         CHECK_PASSWORD_API,
         { password: form.currentPassword },
-        { withCredentials: true }
+        { withCredentials: true, headers: { "Content-Type": "application/json" } }
       );
       if (response.data === true) {
         setPasswordVerified(true);
