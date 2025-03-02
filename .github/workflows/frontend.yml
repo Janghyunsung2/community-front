@@ -13,12 +13,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Install SSH tools
+        run: sudo apt-get update && sudo apt-get install -y sshpass expect
+
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ontheit
-          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-          script: |
-            cd /home/ontheit/project/frontend
-            ./deploy.sh
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ontheit
+          EC2_PASSWORD: ${{ secrets.EC2_PASSWORD }}
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+
+          expect <<EOF
+          spawn ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST
+          expect "Password:"
+          send "$EC2_PASSWORD\r"
+          interact
+          EOF
