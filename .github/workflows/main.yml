@@ -1,9 +1,11 @@
-name: Deploy to EC2
+name: Frontend CI/CD
 
 on:
   push:
     branches:
-      - main  # main 브랜치에 push하면 실행
+      - main
+    paths:
+      - 'frontend/**'
 
 jobs:
   deploy:
@@ -13,45 +15,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build Next.js app
-        run: npm run build
-
-      - name: Set up SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-
       - name: Deploy to EC2
-        run: |
-          ssh -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
-          
-          # 프로젝트 폴더 이동 또는 클론
-          cd /home/ontheit || exit
-          
-          if [ ! -d "community-front" ]; then
-            git clone git@github.com:YOUR_GITHUB_USERNAME/YOUR_REPO.git community-front
-          fi
-          
-          cd community-front
-          git checkout main
-          git pull origin main
-          
-          # 패키지 설치 및 빌드
-          npm install
-          npm run build
-          
-          # 기존 프로세스 종료 후 재시작 (메모리 제한 적용)
-          pm2 delete next-app || true
-          pm2 start npm --name "next-app" -- start --node-args="--max-old-space-size=512"
-          
-          EOF
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ontheit
+          key: ${{ secrets.EEC2_SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/ontheit/frontend
+            ./deploy.sh
