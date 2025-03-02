@@ -2,7 +2,7 @@ import axios from "axios";
 import Router from "next/router";
 
 const api = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: "http://18.117.117.125:8080",
   withCredentials: true, // ✅ 쿠키 항상 포함
 });
 
