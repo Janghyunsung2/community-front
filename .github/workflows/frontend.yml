@@ -18,7 +18,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ontheit
-          key: ${{ secrets.EEC2_SSH_PRIVATE_KEY }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
             cd /home/ontheit/frontend
             ./deploy.sh
