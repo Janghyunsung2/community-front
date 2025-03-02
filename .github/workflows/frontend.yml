@@ -30,5 +30,8 @@ jobs:
           spawn ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST
           expect "Password:"
           send "$EC2_PASSWORD\r"
-          interact
+          expect "$ "
+          send "cd /home/ontheit/project/frontend && chmod +x deploy.sh && ./deploy.sh\r"
+          expect "$ "
+          send "exit\r"
           EOF
