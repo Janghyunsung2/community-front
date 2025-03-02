@@ -20,5 +20,5 @@ jobs:
           username: ontheit
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
-            cd /home/ontheit/frontend
+            cd /home/ontheit/project/frontend
             ./deploy.sh
