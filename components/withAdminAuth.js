@@ -9,20 +9,19 @@ const withAdminAuth = (WrappedComponent) => {
     const [isAuthorized, setIsAuthorized] = useState(false);
 
     useEffect(() => {
-      let isMounted = true;
 
       (async () => {
         try {
           // 1) /api/auth/me 호출
           const response = await api.get('/api/auth/me');
           // ※ 실제 응답 구조를 반드시 확인: console.log(response.data)
-          const userRole = response.data; // 예: { role: 'ROLE_ADMIN' }
+          const userRole = response.data.nickname; // 예: { role: 'ROLE_ADMIN' }
 
           console.log('사용자 역할:', userRole);
 
           // 2) 권한 체크
-          if (userRole === 'ROLE_ADMIN') {
-            if (isMounted) setIsAuthorized(true);
+          if (userRole === '관리자') {
+            setIsAuthorized(true);
           } else {
             console.warn('관리자 권한 없음, /unauthorized로 이동');
             await router.replace('/unauthorized');
@@ -47,7 +46,7 @@ const withAdminAuth = (WrappedComponent) => {
           }
           return; // 에러 시도 리다이렉트 후 종료
         } finally {
-          if (isMounted) setIsLoading(false);
+          setIsLoading(false);
         }
       })();
 
