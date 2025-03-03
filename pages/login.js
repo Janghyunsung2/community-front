@@ -9,7 +9,7 @@ export default function Login() {
   const router = useRouter();
   const { user, setUser } = useContext(AuthContext);
   const [form, setForm] = useState({ username: "", password: "" });
-
+  const [error, setError] = useState("");
   // 입력값 변경 핸들러
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
