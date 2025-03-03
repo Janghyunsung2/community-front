@@ -20,8 +20,10 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      await api.post(LOGIN_API, form, { withCredentials: true ,   headers: { "Content-Type": "application/json" }}
-      ); // ✅ 쿠키 인증 활성화
+      await api.post(LOGIN_API, form, { 
+        withCredentials: true ,  
+        headers: { "Content-Type": "application/json" }
+      }); // ✅ 쿠키 인증 활성화
       console.log("로그인 성공");
       setUser(true);
 
@@ -36,6 +38,9 @@ export default function Login() {
   return (
     <div className="max-w-md mx-auto mt-10 p-6 border rounded-lg shadow">
       <h2 className="text-2xl font-bold mb-4">로그인</h2>
+
+      {error && <p className="text-red-500">{error}</p>} {/* ✅ 에러 메시지 표시 */}
+
  
       <form onSubmit={handleSubmit} className="space-y-4">
         <input className="w-full p-2 border rounded" type="text" name="username" placeholder="사용자명" value={form.username} onChange={handleChange} required />
