@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import api from "@/utils/axios";
+import SEOHead from "@/components/SEOHead";
 
 export const AuthContext = createContext();
 

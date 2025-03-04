@@ -21,10 +21,6 @@ export default function App({ Component, pageProps }) {
 
     <AuthProvider>
       <Layout>
-        <head>
-          <title>온더잇</title>
-        </head>
-        <SEOHead />
         <Component {...pageProps} />
       </Layout>
     </AuthProvider>
