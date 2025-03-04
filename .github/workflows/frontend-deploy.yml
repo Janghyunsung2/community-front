@@ -1,144 +1,37 @@
-name: CI/CD for Frontend
+name: Backend CI/CD
 
 on:
   push:
     branches:
-      - main  # main 브랜치에 Push될 때 실행
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
+      - name: Install SSH tools
+        run: sudo apt-get update && sudo apt-get install -y sshpass expect
 
-      - name: Install Dependencies & Build
-        run: |
-          npm ci
-          npm run build
-          
-          # 빌드 후 디렉토리 확인
-          echo "Checking build directory..."
-          ls -la
-          
-          # .next 디렉토리가 있는지 확인
-          if [ ! -d "./.next" ] || [ -z "$(ls -A ./.next)" ]; then
-            echo "Build directory (.next) is missing or empty!"
-            exit 1
-          fi
-          
-          ls -l .next/
+      - name: Deploy to EC2
         env:
-          CI: true
-
-      - name: Set up SSH
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ontheit
+          EC2_PASSWORD: ${{ secrets.EC2_PASSWORD }}
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          echo "$SSH_PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
 
-      - name: Deploy Build Files to EC2
-        run: |
-          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" $(pwd) ontheit@${{ secrets.EC2_HOST }}:/home/ontheit/community-front/
-
-      - name: Run Next.js Server on EC2
-        run: |
-          ssh -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
-          cd /home/ontheit/community-front/
-
-          # 권한 문제 해결
-          sudo chown -R ontheit:ontheit /home/ontheit/community-front
-          sudo chmod -R 775 /home/ontheit/community-front
-          
-          npm install --omit=dev
-          
-          # 기존 PM2 프로세스 종료 후 다시 실행
-          pm2 delete nextjs || true
-          pm2 start npm --name "nextjs" -- start
-          pm2 save --force
-          
-          # PM2 자동 실행 설정 (최초 1회 필요)
-          if ! systemctl list-units --full -all | grep -q "pm2-ontheit.service"; then
-            sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u ontheit --hp /home/ontheit
-            sudo systemctl enable pm2-ontheit
-          fi
-
-          EOF
-
-      - name: Set up and Restart Nginx on EC2
-        run: |
-          ssh -o StrictHostKeyChecking=no ontheit@${{ secrets.EC2_HOST }} << 'EOF'
-          
-          # 1. Nginx 설치 및 시작
-          sudo yum update -y
-          sudo yum install -y nginx
-          sudo systemctl enable nginx
-          sudo systemctl start nginx || sudo systemctl restart nginx
-
-          # 2. Nginx 설정 파일 적용 (프록시 설정 추가)
-          sudo bash -c 'cat > /etc/nginx/conf.d/frontend.conf <<EOF
-          server {
-              listen 80;
-              server_name your-domain.com;  # 도메인 또는 IP 수정
-              return 301 https://\$host\$request_uri;  # HTTPS로 강제 리디렉션
-          }
-
-          server {
-              listen 443 ssl;
-              server_name your-domain.com;  # 도메인 또는 IP 수정
-
-              ssl_certificate /etc/letsencrypt/live/your-domain.com/fullchain.pem;
-              ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
-
-              location / {
-                  proxy_pass http://127.0.0.1:3000;
-                  proxy_http_version 1.1;
-                  proxy_set_header Upgrade \$http_upgrade;
-                  proxy_set_header Connection 'upgrade';
-                  proxy_set_header Host \$host;
-                  proxy_cache_bypass \$http_upgrade;
-                  
-                  # WebSocket 지원
-                  proxy_set_header X-Real-IP \$remote_addr;
-                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                  proxy_set_header X-Forwarded-Proto \$scheme;
-              }
-
-              location /_next/ {
-                  proxy_pass http://127.0.0.1:3000;
-                  proxy_http_version 1.1;
-                  proxy_set_header Upgrade \$http_upgrade;
-                  proxy_set_header Connection 'upgrade';
-                  proxy_set_header Host \$host;
-                  proxy_cache_bypass \$http_upgrade;
-              }
-
-              location /static/ {
-                  root /home/ontheit/community-front/public;
-                  index index.html;
-                  expires max;
-                  access_log off;
-              }
-
-              location /socket.io/ {
-                  proxy_pass http://127.0.0.1:3000;
-                  proxy_http_version 1.1;
-                  proxy_set_header Upgrade \$http_upgrade;
-                  proxy_set_header Connection "Upgrade";
-                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-              }
-
-              error_page 404 /404.html;
-          }
-          EOF'
-          
-          # 3. Nginx 설정 테스트 및 재시작
-          sudo nginx -t && sudo systemctl restart nginx
+          expect <<EOF
+          spawn ssh -o StrictHostKeyChecking=no -i private_key.pem $EC2_USER@$EC2_HOST
+          expect "Password:"
+          send "$EC2_PASSWORD\r"
+          expect "$ "
+          send "cd /home/ontheit/project/frontend && chmod +x deploy.sh && ./deploy.sh\r"
+          expect "$ "
+          send "exit\r"
           EOF
