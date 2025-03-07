@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '@/utils/axios';
 import AdminLayout from '../../components/AdminLayout';
+import { useRouter } from 'next/router';
 
 const BoardPage = () => {
   const [boards, setBoards] = useState([]);
@@ -9,6 +10,7 @@ const BoardPage = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const pageSize = 10; // 한 페이지에 10개 게시판 표시
+  const router = useRouter();
 
   useEffect(() => {
     fetchBoards(currentPage);
@@ -66,122 +68,134 @@ const BoardPage = () => {
 
   return (
     <AdminLayout>
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">게시판 관리</h1>
-      <table className="min-w-full bg-white border">
-        <thead>
-          <tr>
-            <th className="py-2 px-4 border">ID</th>
-            <th className="py-2 px-4 border">제목</th>
-            <th className="py-2 px-4 border">설명</th>
-            <th className="py-2 px-4 border">활성화 여부</th>
-            <th className="py-2 px-4 border">액션</th>
-          </tr>
-        </thead>
-        <tbody>
-          {boards.map((board) => (
-            <tr key={board.id}>
-              <td className="py-2 px-4 border text-center">{board.id}</td>
-              <td className="py-2 px-4 border text-center">
-                {editBoardId === board.id ? (
-                  <input
-                    type="text"
-                    name="title"
-                    value={editBoardData.title}
-                    onChange={handleInputChange}
-                    className="border p-1"
-                  />
-                ) : (
-                  board.title
-                )}
-              </td>
-              <td className="py-2 px-4 border text-center">
-                {editBoardId === board.id ? (
-                  <input
-                    type="text"
-                    name="description"
-                    value={editBoardData.description}
-                    onChange={handleInputChange}
-                    className="border p-1"
-                  />
-                ) : (
-                  board.description
-                )}
-              </td>
-              <td className="py-2 px-4 border text-center">
-                {editBoardId === board.id ? (
-                  <input
-                    type="checkbox"
-                    name="active"
-                    checked={editBoardData.active}
-                    onChange={handleInputChange}
-                  />
-                ) : board.active ? '활성화' : '비활성화'}
-              </td>
-              <td className="py-2 px-4 border text-center">
-                {editBoardId === board.id ? (
-                  <>
-                    <button
-                      onClick={() => updateBoard(board.id)}
-                      className="bg-green-500 text-white px-3 py-1 rounded mr-2"
-                    >
-                      저장
-                    </button>
-                    <button
-                      onClick={() => setEditBoardId(null)}
-                      className="bg-gray-500 text-white px-3 py-1 rounded"
-                    >
-                      취소
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={() => {
-                        setEditBoardId(board.id);
-                        setEditBoardData({
-                          title: board.title,
-                          description: board.description,
-                          active: board.active,
-                        });
-                      }}
-                      className="bg-blue-500 text-white px-3 py-1 rounded mr-2"
-                    >
-                      수정
-                    </button>
-                    <button
-                      onClick={() => deleteBoard(board.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded"
-                    >
-                      삭제
-                    </button>
-                  </>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
 
-      {/* 페이지네이션 */}
-      <div className="flex justify-center mt-4 space-x-2">
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 0}
-          className={`px-4 py-2 rounded ${currentPage === 0 ? 'bg-gray-300' : 'bg-blue-500 text-white'}`}
-        >
-          이전
-        </button>
-        <span className="px-4 py-2">{currentPage + 1} / {totalPages}</span>
-        <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage + 1 === totalPages}
-          className={`px-4 py-2 rounded ${currentPage + 1 === totalPages ? 'bg-gray-300' : 'bg-blue-500 text-white'}`}
-        >
-          다음
-        </button>
+      <button
+        onClick={() => router.push('/admin/board/new')}
+        className="bg-blue-500 text-white px-3 py-1 rounded mb-2"
+      >
+        새 게시판 등록
+      </button>
+      <div className="p-6">
+        <h1 className="text-2xl font-bold mb-4">게시판 관리</h1>
+        <table className="min-w-full bg-white border">
+          <thead>
+            <tr>
+              <th className="py-2 px-4 border">ID</th>
+              <th className="py-2 px-4 border">제목</th>
+              <th className="py-2 px-4 border">설명</th>
+              <th className="py-2 px-4 border">카테고리</th>
+              <th className="py-2 px-4 border">활성화 여부</th>
+              <th className="py-2 px-4 border">액션</th>
+
+            </tr>
+          </thead>
+          <tbody>
+            {boards.map((board) => (
+              <tr key={board.id}>
+                <td className="py-2 px-4 border text-center">{board.id}</td>
+                <td className="py-2 px-4 border text-center">
+                  {editBoardId === board.id ? (
+                    <input
+                      type="text"
+                      name="title"
+                      value={editBoardData.title}
+                      onChange={handleInputChange}
+                      className="border p-1"
+                    />
+                  ) : (
+                    board.title
+                  )}
+                </td>
+                <td className="py-2 px-4 border text-center">
+                  {editBoardId === board.id ? (
+                    <input
+                      type="text"
+                      name="description"
+                      value={editBoardData.description}
+                      onChange={handleInputChange}
+                      className="border p-1"
+                    />
+                  ) : (
+                    board.description
+                  )}
+                </td>
+                <td className="py-2 px-4 border text-center">
+                  {board.categoryName}
+                </td>
+                <td className="py-2 px-4 border text-center">
+                  {editBoardId === board.id ? (
+                    <input
+                      type="checkbox"
+                      name="active"
+                      checked={editBoardData.active}
+                      onChange={handleInputChange}
+                    />
+                  ) : board.active ? '활성화' : '비활성화'}
+                </td>
+                <td className="py-2 px-4 border text-center">
+                  {editBoardId === board.id ? (
+                    <>
+                      <button
+                        onClick={() => updateBoard(board.id)}
+                        className="bg-green-500 text-white px-3 py-1 rounded mr-2"
+                      >
+                        저장
+                      </button>
+                      <button
+                        onClick={() => setEditBoardId(null)}
+                        className="bg-gray-500 text-white px-3 py-1 rounded"
+                      >
+                        취소
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => {
+                          setEditBoardId(board.id);
+                          setEditBoardData({
+                            title: board.title,
+                            description: board.description,
+                            active: board.active,
+                          });
+                        }}
+                        className="bg-blue-500 text-white px-3 py-1 rounded mr-2"
+                      >
+                        수정
+                      </button>
+                      <button
+                        onClick={() => deleteBoard(board.id)}
+                        className="bg-red-500 text-white px-3 py-1 rounded"
+                      >
+                        삭제
+                      </button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* 페이지네이션 */}
+        <div className="flex justify-center mt-4 space-x-2">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 0}
+            className={`px-4 py-2 rounded ${currentPage === 0 ? 'bg-gray-300' : 'bg-blue-500 text-white'}`}
+          >
+            이전
+          </button>
+          <span className="px-4 py-2">{currentPage + 1} / {totalPages}</span>
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage + 1 === totalPages}
+            className={`px-4 py-2 rounded ${currentPage + 1 === totalPages ? 'bg-gray-300' : 'bg-blue-500 text-white'}`}
+          >
+            다음
+          </button>
+        </div>
       </div>
-    </div>
     </AdminLayout>
   );
 };

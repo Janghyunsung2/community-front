@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import api from '@/utils/axios';
 import AdminLayout from '../../components/AdminLayout';
 
@@ -7,6 +8,7 @@ const CategoryPage = () => {
   const [categories, setCategories] = useState([]);
   const [editCategoryId, setEditCategoryId] = useState(null);
   const [editCategoryName, setEditCategoryName] = useState('');
+  const router = useRouter();
 
   // 카테고리 목록 불러오기
   useEffect(() => {
@@ -48,73 +50,80 @@ const CategoryPage = () => {
 
   return (
     <AdminLayout>
-        <div className="p-6">
+      <button
+        onClick={() => router.push('/admin/category/new')}
+        className="bg-blue-500 text-white px-3 py-1 rounded mb-2"
+      >
+        새 카테고리 등록
+      </button>
+      <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">카테고리 관리</h1>
         <table className="min-w-full bg-white border">
-            <thead>
+          <thead>
             <tr>
-                <th className="py-2 px-4 border">ID</th>
-                <th className="py-2 px-4 border">카테고리 이름</th>
-                <th className="py-2 px-4 border">액션</th>
+              <th className="py-2 px-4 border">ID</th>
+              <th className="py-2 px-4 border">카테고리 이름</th>
+              <th className="py-2 px-4 border">액션</th>
             </tr>
-            </thead>
-            <tbody>
+          </thead>
+          <tbody>
             {categories.map((category) => (
-                <tr key={category.id}>
+              <tr key={category.id}>
                 <td className="py-2 px-4 border text-center">{category.id}</td>
                 <td className="py-2 px-4 border text-center">
-                    {editCategoryId === category.id ? (
+                  {editCategoryId === category.id ? (
                     <input
-                        type="text"
-                        value={editCategoryName}
-                        onChange={(e) => setEditCategoryName(e.target.value)}
-                        className="border p-1"
+                      type="text"
+                      value={editCategoryName}
+                      onChange={(e) => setEditCategoryName(e.target.value)}
+                      className="border p-1"
                     />
-                    ) : (
+                  ) : (
                     category.name
-                    )}
+                  )}
                 </td>
                 <td className="py-2 px-4 border text-center">
-                    {editCategoryId === category.id ? (
+                  {editCategoryId === category.id ? (
                     <>
-                        <button
+                      <button
                         onClick={() => updateCategory(category.id)}
                         className="bg-green-500 text-white px-3 py-1 rounded mr-2"
-                        >
+                      >
                         저장
-                        </button>
-                        <button
+                      </button>
+                      <button
                         onClick={() => setEditCategoryId(null)}
                         className="bg-gray-500 text-white px-3 py-1 rounded"
-                        >
+                      >
                         취소
-                        </button>
+                      </button>
                     </>
-                    ) : (
+                  ) : (
                     <>
-                        <button
+
+                      <button
                         onClick={() => {
-                            setEditCategoryId(category.id);
-                            setEditCategoryName(category.name);
+                          setEditCategoryId(category.id);
+                          setEditCategoryName(category.name);
                         }}
                         className="bg-blue-500 text-white px-3 py-1 rounded mr-2"
-                        >
+                      >
                         수정
-                        </button>
-                        <button
+                      </button>
+                      <button
                         onClick={() => deleteCategory(category.id)}
                         className="bg-red-500 text-white px-3 py-1 rounded"
-                        >
+                      >
                         삭제
-                        </button>
+                      </button>
                     </>
-                    )}
+                  )}
                 </td>
-                </tr>
+              </tr>
             ))}
-            </tbody>
+          </tbody>
         </table>
-        </div>
+      </div>
     </AdminLayout>
   );
 };

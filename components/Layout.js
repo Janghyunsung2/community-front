@@ -43,6 +43,12 @@ export default function Layout({ children }) {
               <Link href="/mypage" className="hover:underline">
                 마이페이지
               </Link>
+
+              {user.nickname === "관리자" && (
+                <Link href="/admin" className="hover:underline">
+                  관리자 페이지
+                </Link>
+              )}
               <button
                 className="text-red-400 hover:text-red-300"
                 onClick={handleLogout}
