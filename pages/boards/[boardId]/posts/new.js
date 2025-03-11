@@ -21,16 +21,16 @@ export default function NewPost() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-
-    // JSON 데이터를 Blob으로 변환하여 추가
+  
+    // DTO 데이터를 JSON → Blob 변환 후 FormData에 추가
     const postData = JSON.stringify({ title: form.title, content: form.content });
     formData.append("postWithBoardDto", new Blob([postData], { type: "application/json" }));
-
+  
     // 이미지 파일 추가
     images.forEach((image) => {
       formData.append("images", image);
     });
-
+  
     try {
       await api.post(`${API_URL}/${boardId}/posts`, formData, {
         withCredentials: true,
@@ -41,6 +41,7 @@ export default function NewPost() {
       console.error("게시글 작성 실패:", err);
     }
   };
+  
 
   return (
     <div className="bg-gray-100 min-h-screen flex items-center justify-center">
