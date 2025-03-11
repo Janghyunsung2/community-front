@@ -8,15 +8,34 @@ export default function NewPost() {
   const router = useRouter();
   const { boardId } = router.query;
   const [form, setForm] = useState({ title: "", content: "" });
+  const [images, setImages] = useState([]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleImageChange = (e) => {
+    setImages((prevImages) => [...prevImages, ...Array.from(e.target.files)]);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData();
+
+    // JSON 데이터를 Blob으로 변환하여 추가
+    const postData = JSON.stringify({ title: form.title, content: form.content });
+    formData.append("postWithBoardDto", new Blob([postData], { type: "application/json" }));
+
+    // 이미지 파일 추가
+    images.forEach((image) => {
+      formData.append("images", image);
+    });
+
     try {
-      await api.post(`${API_URL}/${boardId}/posts`, form, { withCredentials: true });
+      await api.post(`${API_URL}/${boardId}/posts`, formData, {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" }, // 자동 설정됨 (생략 가능)
+      });
       router.push(`/boards/${boardId}/posts`);
     } catch (err) {
       console.error("게시글 작성 실패:", err);
@@ -29,7 +48,6 @@ export default function NewPost() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <h2 className="text-2xl font-bold border-b pb-2">게시글 작성</h2>
 
-          {/* 제목 입력 */}
           <input
             className="w-full p-2 border rounded"
             type="text"
@@ -40,7 +58,6 @@ export default function NewPost() {
             required
           />
 
-          {/* 내용 입력 */}
           <textarea
             className="w-full p-2 border rounded h-40 resize-none"
             name="content"
@@ -50,7 +67,14 @@ export default function NewPost() {
             required
           />
 
-          {/* 버튼 */}
+          <input
+            className="w-full p-2 border rounded"
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleImageChange}
+          />
+
           <button className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
             작성 완료
           </button>

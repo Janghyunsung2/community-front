@@ -2,8 +2,8 @@ import axios from "axios";
 import Router from "next/router";
 
 const api = axios.create({
-  baseURL: "https://www.ontheit.site",
-  // baseURL: "http://localhost:8080",
+  // baseURL: "https://www.ontheit.site",
+  baseURL: "http://localhost:8080",
   withCredentials: true, // ✅ 쿠키 항상 포함
 });
 

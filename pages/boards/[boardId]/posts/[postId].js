@@ -13,6 +13,8 @@ const PostDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const uniqueUrls = [...new Set(post?.url || [])];
+
   const fetchedRef = useRef(false);
 
   useEffect(() => {
@@ -79,9 +81,16 @@ const PostDetail = () => {
           {/* <span>조회수: {views}</span> */}
           {/* <span>작성일: {createdAt}</span> */}
         </div>
+        <div>
+          {uniqueUrls.map((image, index) => (
+            <img key={index} src={image} alt={`image-${index}`} className="w-full h-auto rounded-lg shadow" />
+          ))}
+        </div>
+
 
         {/* 내용 */}
         <div className="min-h-[200px] mb-4 whitespace-pre-wrap leading-relaxed">
+          
           {post.content}
         </div>
 
