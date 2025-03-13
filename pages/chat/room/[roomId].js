@@ -30,6 +30,7 @@ const ChatRoom = () => {
 
     // 2️⃣ WebSocket 연결
     const socket = new SockJS("https://www.ontheit.site/ws-chat");
+    // const socket = new SockJS("http://localhost:8080/ws-chat");
     const stompClient = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
