@@ -29,7 +29,7 @@ const ChatRoom = () => {
       .catch(error => console.error("메시지 히스토리 불러오기 실패:", error));
 
     // 2️⃣ WebSocket 연결
-    const socket = new SockJS("http://localhost:8080/ws-chat");
+    const socket = new SockJS("https://www.ontheit.site/ws-chat");
     const stompClient = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,

@@ -4,7 +4,7 @@ import ChatRoomList from "@/components/chat/ChatRoomList";
 
 const ChatPage = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
-
+  
   const handleCategorySelect = (categoryId) => {
     setSelectedCategoryId(categoryId);
   };
