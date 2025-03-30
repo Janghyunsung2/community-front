@@ -133,7 +133,7 @@ export default function Home() {
                                          }}
                                     />
                                     <Link
-                                        href={`/posts/${post.id}`}
+                                        href={`/boards/${board.boardId}/posts/${post.id}`}
                                         className="font-medium text-blue-600 hover:underline"
                                     >
                                       {post.title}
