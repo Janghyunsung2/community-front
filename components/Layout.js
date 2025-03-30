@@ -19,43 +19,52 @@ export default function Layout({ children }) {
   return (
     <div className="flex flex-col h-screen">
       {/* 상단 네비게이션 (어두운 배경) */}
-      <header className="flex justify-between items-center p-4 bg-gray-800 text-white">
+      <header
+          className="flex justify-between items-center p-4 bg-gray-800 text-white">
         <div className="flex items-center space-x-2">
           {/* 홈 버튼 (로고) */}
           <Link href="/">
-            <Image src="/온더잇.png" alt="Logo" width={100} height={40} />
+            <Image src="/온더잇.png" alt="Logo" width={100} height={40}/>
           </Link>
         </div>
+
+        <div className="flex justify-between space-x-10">
+          <Link href="/category">카테고리</Link>
+        </div>
+
+        {/*<div className="flex justify-between space-x-10">*/}
+        {/*  <Link href="/chat">채팅</Link>*/}
+        {/*</div>*/}
 
         {/* 로그인/로그아웃 버튼 */}
         <div className="flex space-x-4">
           {user == null ? (
-            <>
-              <Link href="/login" className="text-blue-200">
-                로그인
-              </Link>
-              <Link href="/register" className="text-green-300">
-                회원가입
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link href="/mypage" className="hover:underline">
-                마이페이지
-              </Link>
-
-              {user.nickname === "관리자" && (
-                <Link href="/admin" className="hover:underline">
-                  관리자 페이지
+              <>
+                <Link href="/login" className="text-blue-200">
+                  로그인
                 </Link>
-              )}
-              <button
-                className="text-red-400 hover:text-red-300"
-                onClick={handleLogout}
-              >
-                로그아웃
-              </button>
-            </>
+                <Link href="/register" className="text-green-300">
+                  회원가입
+                </Link>
+              </>
+          ) : (
+              <>
+                <Link href="/mypage" className="hover:underline">
+                  마이페이지
+                </Link>
+
+                {user.nickname === "관리자" && (
+                    <Link href="/admin" className="hover:underline">
+                      관리자 페이지
+                    </Link>
+                )}
+                <button
+                    className="text-red-400 hover:text-red-300"
+                    onClick={handleLogout}
+                >
+                  로그아웃
+                </button>
+              </>
           )}
         </div>
       </header>
