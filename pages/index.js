@@ -54,6 +54,7 @@ export default function Home() {
             boardsGroup1.map(board =>
                 api.get(`/api/boards/${board.boardId}/best`).then(res => ({
                   boardId: board.boardId,
+                  title: board.title, // 추가
                   posts: res.data,
                 }))
             )
@@ -63,10 +64,12 @@ export default function Home() {
             boardsGroup2.map(board =>
                 api.get(`/api/boards/${board.boardId}/best`).then(res => ({
                   boardId: board.boardId,
+                  title: board.title, // 추가
                   posts: res.data,
                 }))
             )
         );
+
 
         setBoardGroup1(group1);
         setBoardGroup2(group2);

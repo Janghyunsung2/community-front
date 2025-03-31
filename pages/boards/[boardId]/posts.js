@@ -9,18 +9,20 @@ export default function BoardPosts() {
   const router = useRouter();
   const { boardId } = router.query;
   const [posts, setPosts] = useState([]);
+  const [sortOption, setSortOption] = useState("createdAt,DESC");
+
 
   useEffect(() => {
     if (boardId) {
       api
-        .get(`${API_URL}/${boardId}/posts`)
+        .get(`${API_URL}/${boardId}/posts?page=0&sort=${sortOption}`)
         .then((res) => {
           // 삭제되지 않은 게시글만 필터링
           setPosts(res.data.content.filter((post) => !post.isDelete));
         })
         .catch((err) => console.error("게시글 목록 불러오기 실패:", err));
     }
-  }, [boardId]);
+  }, [boardId, sortOption]);
 
   return (
     <div className="bg-gray-100 min-h-screen py-6">
@@ -34,6 +36,19 @@ export default function BoardPosts() {
           >
             ✏️ 새 글 작성
           </Link>
+        </div>
+
+        {/* 정렬 선택 */}
+        <div className="mb-4">
+          <select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              className="border px-2 py-1 rounded"
+          >
+            <option value="createdAt,DESC">최신순</option>
+            <option value="createdAt,ASC">오래된순</option>
+            <option value="viewCount,DESC">조회순</option>
+          </select>
         </div>
 
         {/* 게시글 목록 */}
