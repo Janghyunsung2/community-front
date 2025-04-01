@@ -34,15 +34,15 @@ const CommentSection = ({ postId }) => {
       alert('수정할 내용을 입력해주세요.');
       return;
     }
-    api.put(`/api/comments/${commentId}`, { content: updatedContent })
-      .then(() => api.get(`${baseUrl}/api/posts/${postId}/comments`))
+    api.put(`/api/comments/${commentId}`, { content: updatedContent }, { withCredentials: true })
+      .then(() => api.get(`/api/posts/${postId}/comments`))
       .then((res) => setCommentGroups(res.data))
       .catch((err) => console.error('댓글 수정 실패:', err));
   };
 
   const handleDeleteComment = (commentId) => {
-    api.delete(`/api/comments/${commentId}`)
-      .then(() => api.get(`${baseUrl}/api/posts/${postId}/comments`))
+    api.delete(`/api/comments/${commentId}`, { withCredentials: true })
+      .then(() => api.get(`/api/posts/${postId}/comments`))
       .then((res) => setCommentGroups(res.data))
       .catch((err) => console.error('댓글 삭제 실패:', err));
   };
@@ -57,12 +57,21 @@ const CommentSection = ({ postId }) => {
           <p>
             <strong>{rootDto.nickName}</strong> ({new Date(rootDto.createdAt).toLocaleString()})
           </p>
-          <p>{rootDto.content}</p>
-          <button onClick={() => {
-            const updated = prompt('수정할 내용을 입력하세요:', rootDto.content);
-            if (updated !== null) handleUpdateComment(rootDto.contentId, updated);
-          }}>수정</button>
-          <button onClick={() => handleDeleteComment(rootDto.contentId)}>삭제</button>
+          <p>
+            {rootDto.status === 'ACTIVE' ? rootDto.content
+                : rootDto.status === 'ADMIN_DELETE' ? '관리자에 의해 삭제된 댓글입니다.'
+                    : '삭제된 댓글입니다.'}
+          </p>
+          {rootDto.status === 'ACTIVE' && (
+              <>
+                <button onClick={() => {
+                  const updated = prompt('수정할 내용을 입력하세요:', rootDto.content);
+                  if (updated !== null) handleUpdateComment(rootDto.contentId, updated);
+                }}>수정</button>
+                <button onClick={() => handleDeleteComment(rootDto.contentId)}>삭제</button>
+              </>
+          )}
+
         </div>
         {/* 대댓글 작성 폼 (루트 댓글 하위) */}
         <div style={{ marginTop: '10px' }}>
@@ -84,12 +93,20 @@ const CommentSection = ({ postId }) => {
                 <p>
                   <strong>{child.nickName}</strong> ({new Date(child.createdAt).toLocaleString()})
                 </p>
-                <p>{child.content}</p>
-                <button onClick={() => {
-                  const updated = prompt('수정할 내용을 입력하세요:', child.content);
-                  if (updated !== null) handleUpdateComment(child.contentId, updated);
-                }}>수정</button>
-                <button onClick={() => handleDeleteComment(child.contentId)}>삭제</button>
+                <p>
+                  {child.status === 'ACTIVE' ? child.content
+                      : child.status === 'ADMIN_DELETE' ? '관리자에 의해 삭제된 댓글입니다.'
+                          : '삭제된 댓글입니다.'}
+                </p>
+                {child.status === 'ACTIVE' && (
+                    <>
+                      <button onClick={() => {
+                        const updated = prompt('수정할 내용을 입력하세요:', child.content);
+                        if (updated !== null) handleUpdateComment(child.contentId, updated);
+                      }}>수정</button>
+                      <button onClick={() => handleDeleteComment(child.contentId)}>삭제</button>
+                    </>
+                )}
               </div>
             ))}
           </div>
@@ -99,6 +116,7 @@ const CommentSection = ({ postId }) => {
   };
 
   return (
+
     <div>
       <h3>댓글</h3>
       {/* 최상위 댓글 작성 폼 */}
