@@ -14,7 +14,7 @@ const MemberPage = () => {
 
   const fetchMembers = async (page) => {
     try {
-      const response = await api.get(`/api/admin/member?page=${page}&size=${pageSize}`);
+      const response = await api.get(`/api/admin/members?page=${page}&size=${pageSize}`);
       setMembers(response.data.content);
       setTotalPages(response.data.totalPages);
     } catch (error) {

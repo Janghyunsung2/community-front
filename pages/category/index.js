@@ -58,8 +58,11 @@ export default function Home() {
                   {category.boards.length > 0 ? (
                     category.boards.map((board) => (
                       <Link
-                        key={board.boardId}
-                        href={`/boards/${board.boardId}/posts`}
+                          key={board.boardId}
+                          href={{
+                            pathname: `/boards/${board.boardId}/posts`,
+                            query: { boardTitle: board.title },
+                          }}
                         className="block text-blue-500 mt-1 hover:underline"
                       >
                         {board.title}

@@ -2,10 +2,13 @@ import { useContext } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import api from "@/utils/axios";
+import {useState} from "react";
 import { AuthContext } from "../contexts/AuthContext";
 
 export default function Layout({ children }) {
   const { user, setUser } = useContext(AuthContext);
+  const [isOpen, setIsOpen] = useState(false);
+
 
   const handleLogout = async () => {
     try {
@@ -31,6 +34,9 @@ export default function Layout({ children }) {
         <div className="flex justify-between space-x-10">
           <Link href="/category">카테고리</Link>
         </div>
+        <div className="flex justify-between space-x-10">
+          <Link href="/chat">채팅방</Link>
+        </div>
 
         {/*<div className="flex justify-between space-x-10">*/}
         {/*  <Link href="/chat">채팅</Link>*/}
@@ -49,21 +55,46 @@ export default function Layout({ children }) {
               </>
           ) : (
               <>
-                <Link href="/mypage" className="hover:underline">
-                  마이페이지
-                </Link>
+                <div className="relative inline-block text-left">
+                  {/* 버튼 (클릭하면 메뉴 열림) */}
+                  <button
+                      onClick={() => setIsOpen(!isOpen)}
+                      className="text-sm font-medium text-white-1000 hover:text-black"
+                  >
+                    계정
+                  </button>
 
-                {user.nickname === "관리자" && (
-                    <Link href="/admin" className="hover:underline">
-                      관리자 페이지
-                    </Link>
-                )}
-                <button
-                    className="text-red-400 hover:text-red-300"
-                    onClick={handleLogout}
-                >
-                  로그아웃
-                </button>
+                  {/* 팝업 메뉴 */}
+                  {isOpen && (
+                      <div
+                          className="absolute right-0 mt-2 w-40 bg-white border rounded shadow z-10">
+                        <ul className="py-2 px-2 text-sm text-gray-700">
+                          <li>
+                            <Link href="/mypage"
+                                  className="block py-1 hover:underline">
+                              마이페이지
+                            </Link>
+                          </li>
+                          {user.nickname === "관리자" && (
+                              <li>
+                                <Link href="/admin"
+                                      className="block py-1 hover:underline">
+                                  관리자 페이지
+                                </Link>
+                              </li>
+                          )}
+                          <li>
+                            <button
+                                onClick={handleLogout}
+                                className="block w-full text-left text-red-400 hover:text-red-300 py-1"
+                            >
+                              로그아웃
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
+                  )}
+                </div>
               </>
           )}
         </div>
