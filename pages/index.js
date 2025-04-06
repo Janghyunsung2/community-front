@@ -86,13 +86,13 @@ export default function Home() {
 
 
   return (
-      <div className="flex flex-col min-h-screen">
-        <main className="flex-1 p-6 bg-gray-100">
-          <div className="max-w-5xl mx-auto space-y-8">
+      <div className="flex flex-col min-h-[200px]">
+        <main className="flex-1 p-30 bg-gray-90">
+          <div className="max-w-7xl mx-auto space-y-8">
             {/* 1. 조회순 게시글 */}
             <section className="bg-white border rounded-lg shadow p-4">
               <h2 className="text-lg font-semibold mb-4">조회순 게시글</h2>
-              <div className="grid grid-cols-3 gap-4 text-sm text-gray-700">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-700">
                 <PostList title="일간" posts={dailyPosts} />
                 <PostList title="주간" posts={weeklyPosts} />
                 <PostList title="월간" posts={monthlyPosts} />
@@ -117,9 +117,9 @@ export default function Home() {
             </section>
 
             {/* 3. 게시판 이미지 + 제목 */}
-            <section className="bg-white border rounded-lg shadow p-4">
+            <section className="bg-white border rounded-lg shadow p-12">
               <h2 className="text-lg font-semibold mb-4">추천 게시판</h2>
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 {[boardGroup1, boardGroup2].map((group, idx) => (
                     <div key={idx} className="space-y-4">
                       {group.map(board => (
@@ -154,7 +154,7 @@ export default function Home() {
 
             {/* 기존 카테고리 + 게시판 목록 */}
             <section>
-              <div className="grid grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {categoriesWithBoards.map((category) => (
                     <div key={category.categoryId}
                          className="bg-white border rounded-lg shadow p-4 text-center">
@@ -199,4 +199,3 @@ function PostList({title, posts}) {
       </div>
   );
 }
-
