@@ -4,9 +4,11 @@ import CommentSection from "components/CommentSection";
 import LikeButton from "components/LikeButton"; // ✅ DC의 "추천" 역할
 import api from "@/utils/axios";
 import Link from "next/link";
+import {useAuth} from "@/contexts/AuthContext";
 
 const PostDetail = () => {
   const router = useRouter();
+  const { user } = useAuth();
   const { boardId, postId } = router.query;
 
   const [post, setPost] = useState(null);
@@ -21,17 +23,20 @@ const PostDetail = () => {
     if (!router.isReady || !postId || fetchedRef.current) return;
     fetchedRef.current = true;
 
+    setLoading(true);
     api
       .get(`/api/posts/${postId}`)
       .then((res) => {
         setPost(res.data);
-        setLoading(false);
       })
       .catch((err) => {
         console.error("게시글 불러오기 실패:", err);
         setError("게시글을 불러오는 중 오류가 발생했습니다.");
-        setLoading(false);
-      });
+      })
+        .finally(() => {
+          setLoading(false);
+        });
+
   }, [router.isReady, postId]);
 
   if (!router.isReady || loading) {
@@ -100,7 +105,7 @@ const PostDetail = () => {
 
 
 
-          {post.deleted ? (
+          {post.isDeleted ? (
               <div className="text-center text-red-500 font-semibold py-20">
                 삭제된 게시물입니다.
               </div>
@@ -147,13 +152,20 @@ const PostDetail = () => {
                   </Link>
                 </div>
 
-                {/* 댓글 섹션 */}
-                <div className="mt-6">
-                  <CommentSection postId={post.id}/>
-                </div>
               </>
           )}
+
+
         </div>
+
+        {/* 댓글 섹션 */}
+        <div className="max-w-3xl mx-auto mt-6">
+          <div className="bg-white border border-gray-200 rounded-lg shadow p-4">
+            <h3 className="text-xl font-semibold mb-4">댓글</h3>
+            <CommentSection postId={post.id} />
+          </div>
+        </div>
+
       </div>
   );
 };
