@@ -10,10 +10,10 @@ const api = axios.create({
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-      if (error.response && error.response.status === 401) {
-        console.warn("세션 만료 또는 인증 실패. 로그인 페이지로 이동합니다.");
-        Router.replace('/login');
-      }
+      // if (error.response && error.response.status === 401) {
+      //   console.warn("세션 만료 또는 인증 실패. 로그인 페이지로 이동합니다.");
+      //   Router.replace('/login');
+      // }
       return Promise.reject(error);
     }
   );
