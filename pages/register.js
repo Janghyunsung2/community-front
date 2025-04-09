@@ -120,7 +120,7 @@ export default function Register() {
     try {
       const response = await api.post(REGISTER_API, form);
       console.log("회원가입 성공:", response.data);
-      router.push("/login");
+      router.replace("/login");
     } catch (err) {
       console.error("회원가입 실패:", err);
       setError(err.response?.data?.message || "회원가입 중 오류 발생");
