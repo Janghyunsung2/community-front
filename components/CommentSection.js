@@ -1,7 +1,12 @@
 // CommentSection.js
 import React, { useState, useEffect } from 'react';
 import api from '@/utils/axios';
+import {useAuth} from "@/contexts/AuthContext";
+import Link from 'next/link';
+
+
 const CommentSection = ({ postId }) => {
+  const { user } = useAuth();
   const [commentGroups, setCommentGroups] = useState([]);
   const [newComment, setNewComment] = useState('');
 
@@ -121,13 +126,22 @@ const CommentSection = ({ postId }) => {
       <h3>댓글</h3>
       {/* 최상위 댓글 작성 폼 */}
       <div>
-        <textarea
+        {user ? (
+            <>
+      <textarea
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           placeholder="댓글을 입력하세요"
-        />
-        <button onClick={() => handleCreateComment(null, newComment)}>댓글 작성</button>
+      />
+              <button onClick={() => handleCreateComment(null, newComment)}>댓글 작성</button>
+            </>
+        ) : (
+          <p>
+          댓글을 작성하려면 <Link href="/login" className="text-blue-600 hover:underline">로그인</Link> 하세요.
+          </p>
+        )}
       </div>
+
       {/* 모든 댓글 그룹 렌더링 */}
       {commentGroups.map(group => renderCommentGroup(group))}
     </div>
