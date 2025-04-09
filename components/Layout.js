@@ -21,7 +21,7 @@ export default function Layout({ children }) {
   return (
       <div className="flex flex-col min-h-screen bg-gray-100 text-gray-900">
         {/* 상단 네비게이션 */}
-        <header className="bg-gray-800 text-white">
+        <header className="inline-block bg-gray-800 text-white">
           <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
             <div className="flex items-center space-x-2">
               <Link href="/">
@@ -30,7 +30,6 @@ export default function Layout({ children }) {
             </div>
 
             <div className="flex space-x-4 sm:space-x-10">
-              <Link href="/category">카테고리</Link>
               <Link href="/chat">채팅방</Link>
             </div>
 
@@ -86,9 +85,7 @@ export default function Layout({ children }) {
 
         {/* 본문 레이아웃 */}
         <div className="flex max-w-7xl mx-auto w-full">
-          <aside className="hidden sm:block w-56 bg-white border-r p-4 overflow-y-auto shadow-sm">
             <CategorySideBar />
-          </aside>
           <main className="flex-1 p-4 sm:p-6 bg-gray-100">
             {children}
           </main>
