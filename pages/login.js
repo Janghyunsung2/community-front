@@ -25,7 +25,7 @@ export default function Login() {
             .then(() => {
                 console.log("로그인 성공");
                 setUser(true);
-                router.push("/");
+                router.back();
             })
             .catch((err) => {
                 console.error("로그인 실패:", err);
