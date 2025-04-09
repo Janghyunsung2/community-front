@@ -178,7 +178,7 @@ const CommentSection = ({ postId }) => {
 
     return (
 
-      <div className="max-w-3xl mx-auto mt-6">
+      <div className="max-w-3xl mx-auto">
         <h3 className="text-xl font-semibold mb-4">댓글</h3>
 
         {/* 댓글 작성 폼 */}

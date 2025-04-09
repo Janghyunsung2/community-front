@@ -39,7 +39,7 @@ export default function BoardPosts() {
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold"> {title}</h1>
             <Link
-                href={`/boards/${boardId}/posts/new`}
+                href={`/boards/${boardId}/new`}
                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
               ✏️ 새 글 작성
@@ -72,7 +72,7 @@ export default function BoardPosts() {
                         key={post.id}
                         className="border border-gray-200 rounded p-4 hover:bg-gray-50 transition"
                     >
-                      <Link href={`/boards/${boardId}/posts/${post.postId}`}>
+                      <Link href={`/post/${post.postId}`}>
                         <div className="cursor-pointer">
                           <h2 className="text-lg font-semibold">{post.title}</h2>
                           <p className="text-sm text-gray-500">
