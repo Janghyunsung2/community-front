@@ -42,6 +42,10 @@ const ChatRoomList = ({ categoryId }) => {
     router.push(`/chat/room/${roomId}`); // 채팅방 입장 경로로 이동
   };
 
+
+
+
+
   // ✅ 채팅방 생성 완료 후 목록 새로고침
   const handleChatRoomCreated = () => {
     setShowCreator(false); // 생성 폼 닫기

@@ -12,6 +12,7 @@ const AdminLayout = ({ children }) => {
           <Link href="/admin/board" className="hover:bg-gray-700 p-2 rounded">게시판 관리</Link>
           <Link href="/admin/post" className="hover:bg-gray-700 p-2 rounded">게시글 관리</Link>
           <Link href="/admin/comment" className="hover:bg-gray-700 p-2 rounded">댓글 관리</Link>
+          <Link href="/admin/member" className="hover:bg-gray-700 p-2 rounded">회원 관리</Link>
         </nav>
       </div>
 

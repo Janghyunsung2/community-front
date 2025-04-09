@@ -68,63 +68,93 @@ const PostDetail = () => {
   // const createdAt = post.createdAt ? new Date(post.createdAt).toLocaleString() : '';
 
   return (
-    <div className="bg-gray-100 min-h-screen py-6">
-      <div className="max-w-3xl mx-auto bg-white border rounded shadow p-6">
-        {/* 제목 */}
-        <div className="border-b pb-2 mb-4">
-          <h1 className="text-xl font-bold">{post.title}</h1>
-        </div>
+      <div className="bg-gray-100 min-h-screen py-6">
+        <div className="max-w-3xl mx-auto bg-white border rounded shadow p-6">
 
-        {/* 작성자 / 날짜 / 조회수 (필요 시 추가) */}
-        <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
-          <span>글쓴이: {post.nickname}</span>
-          {/* <span>조회수: {views}</span> */}
-          {/* <span>작성일: {createdAt}</span> */}
-        </div>
-        <div>
-          {uniqueUrls.map((image, index) => (
-            <img key={index} src={image} alt={`image-${index}`} className="w-full h-auto rounded-lg shadow" />
-          ))}
-        </div>
+          <div className="mb-4">
+            <Link href={`/boards/${post.boardId}/posts`}>
+              <span
+                  className="text-blue-500 hover:underline text-sm">{post.boardTitle}</span>
+            </Link>
+          </div>
+
+          {/* 제목 */}
+          <div className="border-b pb-2 mb-4">
+            <h1 className="text-xl font-bold">{post.title}</h1>
+          </div>
+
+          {/* 작성자 / 날짜 / 조회수 */}
+          <div
+              className="flex items-center justify-between text-sm text-gray-600 mb-4">
+            <span>글쓴이: {post.nickname}</span>
+             <span>조회수: {post.viewCount}</span>
+             <span>작성일: {new Date(post.createdAt).toLocaleString('ko-KR', {
+                 year: 'numeric',
+                 month: '2-digit',
+                 day: '2-digit',
+                 hour: '2-digit',
+                 minute: '2-digit',
+                 hour12: false,
+               })}</span>
+          </div>
 
 
-        {/* 내용 */}
-        <div className="min-h-[200px] mb-4 whitespace-pre-wrap leading-relaxed">
-          
-          {post.content}
-        </div>
 
-        {/* 추천(좋아요) 버튼 */}
-        <div className="mb-4">
-          <LikeButton postId={postId} />
-        </div>
+          {post.deleted ? (
+              <div className="text-center text-red-500 font-semibold py-20">
+                삭제된 게시물입니다.
+              </div>
+          ) : (
+              <>
+                {/* 이미지 */}
+                <div>
+                  {uniqueUrls.map((image, index) => (
+                      <img key={index} src={image} alt={`image-${index}`}
+                           className="w-full h-auto rounded-lg shadow"/>
+                  ))}
+                </div>
 
-        {/* 수정 / 삭제 / 목록 */}
-        <div className="flex space-x-2">
-          <Link href={`/boards/${boardId}/posts/${postId}/edit`}>
-            <button className="bg-yellow-500 text-white px-3 py-1 rounded">
-              수정
-            </button>
-          </Link>
-          <button
-            onClick={handleDelete}
-            className="bg-red-500 text-white px-3 py-1 rounded"
-          >
-            삭제
-          </button>
-          <Link href={`/boards/${boardId}`}>
-            <button className="bg-gray-500 text-white px-3 py-1 rounded">
-              목록
-            </button>
-          </Link>
-        </div>
+                {/* 내용 */}
+                <div
+                    className="min-h-[200px] mb-4 whitespace-pre-wrap leading-relaxed">
+                  {post.content}
+                </div>
 
-        {/* 댓글 섹션 */}
-        <div className="mt-6">
-          <CommentSection postId={post.id} />
+                {/* 추천(좋아요) 버튼 */}
+                <div className="mb-4">
+                  <LikeButton postId={postId}/>
+                </div>
+
+                {/* 수정 / 삭제 / 목록 */}
+                <div className="flex space-x-2">
+                  <Link href={`/boards/${post.boardId}/posts/${postId}/edit`}>
+                    <button
+                        className="bg-yellow-500 text-white px-3 py-1 rounded">
+                      수정
+                    </button>
+                  </Link>
+                  <button
+                      onClick={handleDelete}
+                      className="bg-red-500 text-white px-3 py-1 rounded"
+                  >
+                    삭제
+                  </button>
+                  <Link href={`/boards/${post.boardId}/posts`}>
+                    <button
+                        className="bg-gray-500 text-white px-3 py-1 rounded">
+                      목록
+                    </button>
+                  </Link>
+                </div>
+
+                {/* 댓글 섹션 */}
+                <div className="mt-6">
+                  <CommentSection postId={post.id}/>
+                </div>
+              </>
+          )}
         </div>
       </div>
-    </div>
   );
 };
 

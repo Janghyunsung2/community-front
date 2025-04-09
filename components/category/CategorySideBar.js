@@ -34,7 +34,7 @@ const CategorySidebar = () => {
   }, []);
 
   return (
-    <aside className="w-full sm:w-44 bg-white shadow-md p-4 overflow-y-auto">
+    <aside className="w-full sm:w-48 bg-white shadow-md p-4 overflow-y-auto">
       <h2 className="text-lg font-bold mb-4">카테고리</h2>
       <ul className="space-y-3">
         {categoriesWithBoards.map((category) => {
