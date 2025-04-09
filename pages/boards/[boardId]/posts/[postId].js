@@ -28,6 +28,7 @@ const PostDetail = () => {
       .get(`/api/posts/${postId}`)
       .then((res) => {
         setPost(res.data);
+        console.log(res.data);
       })
       .catch((err) => {
         console.error("게시글 불러오기 실패:", err);
@@ -130,27 +131,24 @@ const PostDetail = () => {
                   <LikeButton postId={postId}/>
                 </div>
 
-                {/* 수정 / 삭제 / 목록 */}
-                <div className="flex space-x-2">
-                  <Link href={`/boards/${post.boardId}/posts/${postId}/edit`}>
-                    <button
-                        className="bg-yellow-500 text-white px-3 py-1 rounded">
-                      수정
-                    </button>
-                  </Link>
-                  <button
-                      onClick={handleDelete}
-                      className="bg-red-500 text-white px-3 py-1 rounded"
-                  >
-                    삭제
-                  </button>
-                  <Link href={`/boards/${post.boardId}/posts`}>
-                    <button
-                        className="bg-gray-500 text-white px-3 py-1 rounded">
-                      목록
-                    </button>
-                  </Link>
-                </div>
+                {/* 수정 / 삭제 */}
+                {
+                  user?.nickname === post.nickname &&
+                    <div className="flex space-x-2">
+                      <Link href={`/boards/${post.boardId}/posts/${postId}/edit`}>
+                        <button
+                            className="bg-yellow-500 text-white px-3 py-1 rounded">
+                          수정
+                        </button>
+                      </Link>
+                      <button
+                          onClick={handleDelete}
+                          className="bg-red-500 text-white px-3 py-1 rounded"
+                      >
+                        삭제
+                      </button>
+                    </div>
+                }
 
               </>
           )}
