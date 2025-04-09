@@ -238,26 +238,34 @@ export default function Register() {
         </div>
         {/* 인증 코드 입력 & 검증 */}
         {emailSent && (
-          <div className="flex space-x-2">
-            <input
-              className="flex-1 p-2 border rounded"
-              type="text"
-              name="verificationCode"
-              placeholder="인증 코드 입력"
-              value={form.verificationCode}
-              onChange={handleChange}
-              required
-            />
-            <button
-              type="button"
-              onClick={verifyEmailCode}
-              className="p-2 bg-green-500 text-white rounded"
-              disabled={emailVerified}
-            >
-              {emailVerified ? "인증 완료" : "코드 확인"}
-            </button>
-          </div>
+            <div className="space-y-2">
+              <div className="flex space-x-2">
+                <input
+                    className="flex-1 p-2 border rounded"
+                    type="text"
+                    name="verificationCode"
+                    placeholder="인증 코드 입력"
+                    value={form.verificationCode}
+                    onChange={handleChange}
+                    required
+                />
+                <button
+                    type="button"
+                    onClick={verifyEmailCode}
+                    className="p-2 bg-green-500 text-white rounded"
+                    disabled={emailVerified}
+                >
+                  {emailVerified ? "인증 완료" : "코드 확인"}
+                </button>
+              </div>
+
+              {/* 안내 메시지 */}
+              <p className="text-sm text-gray-500">
+                메일이 보이지 않을 경우 <span className="font-bold">스팸 메일함</span>을 확인해주세요.
+              </p>
+            </div>
         )}
+
         <button
           type="submit"
           className="w-full p-2 bg-blue-500 text-white rounded"
