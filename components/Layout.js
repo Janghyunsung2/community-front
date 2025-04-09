@@ -47,9 +47,9 @@ export default function Layout({ children }) {
                   <div className="relative inline-block text-left">
                     <button
                         onClick={() => setIsOpen(!isOpen)}
-                        className="text-sm font-medium text-white hover:text-gray-300"
+                        className=" font-medium text-white hover:text-gray-300"
                     >
-                      계정
+                      {user.nickname}
                     </button>
                     {isOpen && (
                         <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow z-10">
