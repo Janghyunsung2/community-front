@@ -157,9 +157,8 @@ const PostDetail = () => {
         </div>
 
         {/* 댓글 섹션 */}
-        <div className="max-w-3xl mx-auto mt-6">
+        <div className="max-w-3xl mx-auto mt-4">
           <div className="bg-white border border-gray-200 rounded-lg shadow p-4">
-            <h3 className="text-xl font-semibold mb-4">댓글</h3>
             <CommentSection postId={post.id} />
           </div>
         </div>
