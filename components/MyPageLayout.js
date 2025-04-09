@@ -14,6 +14,9 @@ export default function MyPageLayout({ children }) {
           <Link href="/mypage/member-update" className="hover:bg-gray-700 p-2 rounded">
             회원정보 수정
           </Link>
+            <Link href="/mypage/posts" className="hover:bg-gray-700 p-2 rounded">
+                내가 쓴 글
+            </Link>
         </nav>
       </aside>
 

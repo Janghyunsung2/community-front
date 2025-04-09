@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useState, useRef } from "react";
 import CommentSection from "components/CommentSection";
-import LikeButton from "components/LikeButton"; // ✅ DC의 "추천" 역할
+import LikeButton from "components/LikeButton";
 import api from "@/utils/axios";
 import Link from "next/link";
 import {useAuth} from "@/contexts/AuthContext";
@@ -9,8 +9,7 @@ import {useAuth} from "@/contexts/AuthContext";
 const PostDetail = () => {
   const router = useRouter();
   const { user } = useAuth();
-  const { boardId, postId } = router.query;
-
+  const { postId } = router.query;
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,15 +24,15 @@ const PostDetail = () => {
 
     setLoading(true);
     api
-      .get(`/api/posts/${postId}`)
-      .then((res) => {
-        setPost(res.data);
-        console.log(res.data);
-      })
-      .catch((err) => {
-        console.error("게시글 불러오기 실패:", err);
-        setError("게시글을 불러오는 중 오류가 발생했습니다.");
-      })
+        .get(`/api/posts/${postId}`)
+        .then((res) => {
+          setPost(res.data);
+          console.log(res.data);
+        })
+        .catch((err) => {
+          console.error("게시글 불러오기 실패:", err);
+          setError("게시글을 불러오는 중 오류가 발생했습니다.");
+        })
         .finally(() => {
           setLoading(false);
         });
@@ -42,17 +41,17 @@ const PostDetail = () => {
 
   if (!router.isReady || loading) {
     return (
-      <div className="bg-gray-100 min-h-screen flex items-center justify-center">
-        <p>로딩 중...</p>
-      </div>
+        <div className="bg-gray-100 min-h-screen flex items-center justify-center">
+          <p>로딩 중...</p>
+        </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-gray-100 min-h-screen flex items-center justify-center">
-        <p className="text-red-500">{error}</p>
-      </div>
+        <div className="bg-gray-100 min-h-screen flex items-center justify-center">
+          <p className="text-red-500">{error}</p>
+        </div>
     );
   }
 
@@ -93,15 +92,15 @@ const PostDetail = () => {
           <div
               className="flex items-center justify-between text-sm text-gray-600 mb-4">
             <span>글쓴이: {post.nickname}</span>
-             <span>조회수: {post.viewCount}</span>
-             <span>작성일: {new Date(post.createdAt).toLocaleString('ko-KR', {
-                 year: 'numeric',
-                 month: '2-digit',
-                 day: '2-digit',
-                 hour: '2-digit',
-                 minute: '2-digit',
-                 hour12: false,
-               })}</span>
+            <span>조회수: {post.viewCount}</span>
+            <span>작성일: {new Date(post.createdAt).toLocaleString('ko-KR', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false,
+            })}</span>
           </div>
 
 
@@ -133,9 +132,9 @@ const PostDetail = () => {
 
                 {/* 수정 / 삭제 */}
                 {
-                  user?.nickname === post.nickname &&
+                    user?.nickname === post.nickname &&
                     <div className="flex space-x-2">
-                      <Link href={`/boards/${post.boardId}/posts/${postId}/edit`}>
+                      <Link href={`/post/edit/${postId}`}>
                         <button
                             className="bg-yellow-500 text-white px-3 py-1 rounded">
                           수정
@@ -157,9 +156,8 @@ const PostDetail = () => {
         </div>
 
         {/* 댓글 섹션 */}
-        <div className="max-w-3xl mx-auto mt-6">
+        <div className="max-w-3xl mx-auto mt-4">
           <div className="bg-white border border-gray-200 rounded-lg shadow p-4">
-            <h3 className="text-xl font-semibold mb-4">댓글</h3>
             <CommentSection postId={post.id} />
           </div>
         </div>

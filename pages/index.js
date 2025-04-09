@@ -136,7 +136,7 @@ export default function Home() {
                                          }}
                                     />
                                     <Link
-                                        href={`/boards/${board.boardId}/posts/${post.id}`}
+                                        href={`/post/${post.id}`}
                                         className="font-medium text-blue-600 hover:underline"
                                     >
                                       {post.title}
@@ -192,7 +192,7 @@ function PostList({title, posts}) {
         <ul>
           {posts.map(post => (
               <li key={post.id} className="hover:underline">
-                <Link href={`boards/${post.boardId}/posts/${post.id}`}>{post.title}</Link>
+                <Link href={`/post/${post.id}`}>{post.title}</Link>
               </li>
           ))}
         </ul>
