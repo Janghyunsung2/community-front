@@ -37,7 +37,7 @@ export default function MyPostsList() {
 
     return (
     <MyPageLayout>
-        <div className="max-w-3xl mx-auto mt-10 space-y-4">
+        <div className="max-w-3xl mx-auto mt-5 space-y-4">
             <h2 className="text-xl font-bold mb-4">내가 쓴 글</h2>
 
             {posts.map((post) => (
