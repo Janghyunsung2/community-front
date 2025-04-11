@@ -3,14 +3,14 @@ import { useEffect, useState } from 'react';
 import api from '@/utils/axios';
 import { useRouter } from 'next/router';
 
-export default function MyPostsList() {
-    const [posts, setPosts] = useState([]);
+export default function MyCommentsList() {
+    const [comments, setComments] = useState([]);
     const [pageInfo, setPageInfo] = useState({ page: 0, totalPages: 0 });
     const router = useRouter();
 
-    const fetchPosts = async (page = 0) => {
+    const fetchComments = async (page = 0) => {
         try {
-            const res = await api.get('/api/posts', {
+            const res = await api.get('/api/comments', {
                 params: {
                     me: true,
                     page,
@@ -18,42 +18,40 @@ export default function MyPostsList() {
                     sort: 'id,desc',
                 },
             });
-            setPosts(res.data.content);
+            setComments(res.data.content);
             setPageInfo({ page: res.data.number, totalPages: res.data.totalPages });
 
             console.log(res.data.content);
         } catch (err) {
-            console.error('내 글 불러오기 실패:', err);
+            console.error('내 댓글 불러오기 실패:', err);
         }
     };
 
     useEffect(() => {
-        fetchPosts();
+        fetchComments();
     }, []);
 
     const handlePageChange = (newPage) => {
-        fetchPosts(newPage);
+        fetchComments(newPage);
     };
 
     return (
     <MyPageLayout>
         <div className="max-w-3xl mx-auto mt-5 space-y-4">
-            <h2 className="text-xl font-bold mb-4">내가 쓴 글</h2>
+            <h2 className="text-xl font-bold mb-4">내가 단 댓글</h2>
 
-            {posts.map((post) => (
+            {comments.map((comment) => (
                 <div
-                    key={post.postId}
-                    onClick={() => router.push(`/post/${post.postId}`)}
+                    key={comment.commentId}
+                    onClick={() => router.push(`/post/${comment.postId}`)}
                     className="p-4 border border-gray-400 bg-gray-50 rounded-lg shadow-sm hover:bg-blue-100 hover:border-blue-500 cursor-pointer transition"
                 >
-                    <h3 className="text-lg font-semibold">{post.title}</h3>
+                    <h3 className="text-lg font-semibold">{comment.content}</h3>
                     <div className="text-sm text-gray-500 flex justify-between mt-1">
-                        <span>[{post.boardTitle}] {post.nickname}</span>
-                        <span>{new Date(post.createdAt).toLocaleString('ko-KR')}</span>
+                        <span>[{comment.postTitle}]</span>
+                        <span>{new Date(comment.createdAt).toLocaleString('ko-KR')}</span>
                     </div>
-                    <div className="text-xs text-gray-400 mt-1">
-                        조회수 {post.viewCount} · 좋아요 {post.likeCount}
-                    </div>
+
                 </div>
             ))}
 

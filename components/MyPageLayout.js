@@ -17,6 +17,9 @@ export default function MyPageLayout({ children }) {
             <Link href="/mypage/posts" className="hover:bg-gray-700 p-2 rounded">
                 내가 쓴 글
             </Link>
+            <Link href="/mypage/comments" className="hover:bg-gray-700 p-2 rounded">
+                내가 단 댓글
+            </Link>
         </nav>
       </aside>
 
