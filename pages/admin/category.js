@@ -8,6 +8,8 @@ const CategoryPage = () => {
   const [categories, setCategories] = useState([]);
   const [editCategoryId, setEditCategoryId] = useState(null);
   const [editCategoryName, setEditCategoryName] = useState('');
+  // ✅ 상태 추가
+  const [editDisplayOrder, setEditDisplayOrder] = useState('');
   const router = useRouter();
 
   // 카테고리 목록 불러오기
@@ -39,10 +41,13 @@ const CategoryPage = () => {
     try {
       await api.put(`/api/admin/categories?id=${id}`, {
         name: editCategoryName,
+        displayOrder: parseInt(editDisplayOrder),
       });
       setEditCategoryId(null);
       setEditCategoryName('');
+      setEditDisplayOrder('')
       fetchCategories();
+      window.location.reload();
     } catch (error) {
       console.error('카테고리 수정 중 오류 발생:', error);
     }
@@ -60,67 +65,88 @@ const CategoryPage = () => {
         <h1 className="text-2xl font-bold mb-4">카테고리 관리</h1>
         <table className="min-w-full bg-white border">
           <thead>
-            <tr>
-              <th className="py-2 px-4 border">ID</th>
-              <th className="py-2 px-4 border">카테고리 이름</th>
-              <th className="py-2 px-4 border">액션</th>
-            </tr>
+          <tr>
+            <th className="py-2 px-4 border">ID</th>
+            <th className="py-2 px-4 border">카테고리 이름</th>
+            <th className="py-2 px-4 border">순서</th>
+            {/* 추가 */}
+            <th className="py-2 px-4 border">액션</th>
+          </tr>
           </thead>
           <tbody>
-            {categories.map((category) => (
+          {categories.map((category) => (
               <tr key={category.id}>
                 <td className="py-2 px-4 border text-center">{category.id}</td>
                 <td className="py-2 px-4 border text-center">
                   {editCategoryId === category.id ? (
-                    <input
-                      type="text"
-                      value={editCategoryName}
-                      onChange={(e) => setEditCategoryName(e.target.value)}
-                      className="border p-1"
-                    />
+                      <input
+                          type="text"
+                          value={editCategoryName}
+                          onChange={(e) => setEditCategoryName(e.target.value)}
+                          className="border p-1"
+                      />
                   ) : (
-                    category.name
+                      category.name
                   )}
                 </td>
+
+                {/* ✅ displayOrder 추가 */}
                 <td className="py-2 px-4 border text-center">
                   {editCategoryId === category.id ? (
-                    <>
-                      <button
-                        onClick={() => updateCategory(category.id)}
-                        className="bg-green-500 text-white px-3 py-1 rounded mr-2"
-                      >
-                        저장
-                      </button>
-                      <button
-                        onClick={() => setEditCategoryId(null)}
-                        className="bg-gray-500 text-white px-3 py-1 rounded"
-                      >
-                        취소
-                      </button>
-                    </>
+                      <input
+                          type="number"
+                          value={editDisplayOrder}
+                          onChange={(e) => setEditDisplayOrder(e.target.value)}
+                          className="border p-1 w-20 text-center"
+                      />
                   ) : (
-                    <>
+                      category.displayOrder
+                  )}
+                </td>
 
-                      <button
-                        onClick={() => {
-                          setEditCategoryId(category.id);
-                          setEditCategoryName(category.name);
-                        }}
-                        className="bg-blue-500 text-white px-3 py-1 rounded mr-2"
-                      >
-                        수정
-                      </button>
-                      <button
-                        onClick={() => deleteCategory(category.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded"
-                      >
-                        삭제
-                      </button>
-                    </>
+                <td className="py-2 px-4 border text-center">
+                  {editCategoryId === category.id ? (
+                      <>
+                        <button
+                            onClick={() => updateCategory(category.id)}
+                            className="bg-green-500 text-white px-3 py-1 rounded mr-2"
+                        >
+                          저장
+                        </button>
+                        <button
+                            onClick={() => {
+                              setEditCategoryId(null);
+                              setEditCategoryName('');
+                              setEditDisplayOrder('');
+                            }}
+                            className="bg-gray-500 text-white px-3 py-1 rounded"
+                        >
+                          취소
+                        </button>
+                      </>
+                  ) : (
+                      <>
+                        <button
+                            onClick={() => {
+                              setEditCategoryId(category.id);
+                              setEditCategoryName(category.name);
+                              setEditDisplayOrder(category.displayOrder);
+                            }}
+                            className="bg-blue-500 text-white px-3 py-1 rounded mr-2"
+                        >
+                          수정
+                        </button>
+                        <button
+                            onClick={() => deleteCategory(category.id)}
+                            className="bg-red-500 text-white px-3 py-1 rounded"
+                        >
+                          삭제
+                        </button>
+                      </>
                   )}
                 </td>
               </tr>
-            ))}
+          ))}
           </tbody>
         </table>
       </div>
