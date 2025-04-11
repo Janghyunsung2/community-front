@@ -12,6 +12,7 @@ export default function Home() {
   const [boardGroup1, setBoardGroup1] = useState([]);
   const [boardGroup2, setBoardGroup2] = useState([]);
   const [categoriesWithBoards, setCategoriesWithBoards] = useState([]);
+  const [allPosts, setAllPosts] = useState([]);
 
 
   useEffect(() => {
@@ -42,41 +43,19 @@ export default function Home() {
     fetchPopularBoards()
 
     async function fetchBestPostsByBoardIds() {
-      const boardsGroup1 = [
-        { boardId: 1, title: '자유 게시판' },
-      ];
-      const boardsGroup2 = [
-        { boardId: 2, title: '정보 게시판' },
-      ];
-
       try {
-        const group1 = await Promise.all(
-            boardsGroup1.map(board =>
-                api.get(`/api/boards/${board.boardId}/best`).then(res => ({
-                  boardId: board.boardId,
-                  title: board.title, // 추가
-                  posts: res.data,
-                }))
-            )
-        );
+        const [group1Res, group2Res] = await Promise.all([
+          api.get('/api/boards/4/best'),
+          api.get('/api/boards/1/best'),
+        ]);
 
-        const group2 = await Promise.all(
-            boardsGroup2.map(board =>
-                api.get(`/api/boards/${board.boardId}/best`).then(res => ({
-                  boardId: board.boardId,
-                  title: board.title, // 추가
-                  posts: res.data,
-                }))
-            )
-        );
-
-
-        setBoardGroup1(group1);
-        setBoardGroup2(group2);
+        setBoardGroup1(group1Res.data); // [{ title, posts[] }]
+        setBoardGroup2(group2Res.data);
       } catch (err) {
         console.error('🔥 추천 게시판 불러오기 실패:', err);
       }
     }
+
 
 
     fetchPosts();
@@ -84,6 +63,24 @@ export default function Home() {
   }, []);
 
 
+  useEffect(() => {
+    async function fetchAllPosts() {
+      try {
+        const res = await api.get("/api/posts", {
+          params: {
+            page: 0,
+            size: 10,
+          },
+          withCredentials: true,
+        });
+        setAllPosts(res.data.content); // Page 객체의 content 배열만 사용
+      } catch (err) {
+        console.error("🔥 전체 게시글 불러오기 실패:", err);
+      }
+    }
+
+    fetchAllPosts();
+  }, []);
 
   return (
       <div className="flex flex-col min-h-[200px]">
@@ -92,13 +89,13 @@ export default function Home() {
             {/* 1. 조회순 게시글 */}
             <section className="bg-white border rounded-lg shadow p-4">
               <h2 className="text-lg font-semibold mb-4">조회순 게시글</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-700">
-                <PostList title="일간" posts={dailyPosts} />
-                <PostList title="주간" posts={weeklyPosts} />
-                <PostList title="월간" posts={monthlyPosts} />
+              <div
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-700">
+                <PostList title="일간" posts={dailyPosts}/>
+                <PostList title="주간" posts={weeklyPosts}/>
+                <PostList title="월간" posts={monthlyPosts}/>
               </div>
             </section>
-
 
 
             {/* 2. 인기 게시판 */}
@@ -118,34 +115,37 @@ export default function Home() {
 
             {/* 3. 게시판 이미지 + 제목 */}
             <section className="bg-white border rounded-lg shadow p-12">
-              <h2 className="text-lg font-semibold mb-4">추천 게시판</h2>
+              <h2 className="text-lg font-semibold mb-4">추천게시판</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                {[boardGroup1, boardGroup2].map((group, idx) => (
-                    <div key={idx} className="space-y-4">
-                      {group.map(board => (
-                          <div key={board.boardId}>
-                            <h3 className="font-semibold mb-2">{board.title}</h3>
-                            <div className="space-y-2">
-                              {board.posts.map(post => (
-                                  <div key={post.id}
-                                       className="flex items-center space-x-4">
-                                    <img src={post.imageUrl} alt={post.title}
-                                         className="w-16 h-16 object-cover rounded"
-                                         onError={(e) => {
-                                           e.currentTarget.src = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSAySszMhWPAD-i4hov3Km4ss4Pvxjiacx6Q&s'; // public 폴더에 있는 기본 이미지
-                                         }}
-                                    />
-                                    <Link
-                                        href={`/post/${post.id}`}
-                                        className="font-medium text-blue-600 hover:underline"
-                                    >
-                                      {post.title}
-                                    </Link>
-                                  </div>
-                              ))}
+
+                {[boardGroup1, boardGroup2].map((board, idx) => (
+                    <div key={idx}>
+                      <Link
+                          href={`/boards/${board.id}/posts`}
+                          className="hover:underline hover:text-blue-600 cursor-pointer"
+                      >
+                        <h3 className="font-semibold mb-2">{board.title}</h3>
+                      </Link>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        {board.posts?.map((post) => (
+                            <div key={post.id} className="flex flex-col items-center space-y-2">
+                              <img
+                                  src={
+                                      post.imageUrl ||
+                                      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSAySszMhWPAD-i4hov3Km4ss4Pvxjiacx6Q&s'
+                                  }
+                                  alt={post.title}
+                                  className="w-20 h-20 object-cover rounded"
+                              />
+                              <Link
+                                  href={`/post/${post.id}`}
+                                  className="font-medium text-blue-600 hover:underline text-sm text-center"
+                              >
+                                {post.title}
+                              </Link>
                             </div>
-                          </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                 ))}
               </div>
@@ -154,7 +154,8 @@ export default function Home() {
 
             {/* 기존 카테고리 + 게시판 목록 */}
             <section>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              <div
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {categoriesWithBoards.map((category) => (
                     <div key={category.categoryId}
                          className="bg-white border rounded-lg shadow p-4 text-center">
@@ -173,6 +174,49 @@ export default function Home() {
                         ) : (
                             <p className="text-gray-500">게시판 없음</p>
                         )}
+                      </div>
+                    </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="bg-white border rounded-lg shadow p-6 sm:p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl sm:text-2xl font-semibold">전체 게시글</h2>
+                <Link href="/post"
+                      className="text-sm text-blue-500 hover:underline">
+                  전체 보기
+                </Link>
+              </div>
+
+              <div className="divide-y">
+                {allPosts.map((post) => (
+                    <div key={post.postId}
+                         className="flex items-center py-3 text-sm text-gray-800">
+                      {/* 제목 */}
+                      <Link
+                          href={`/post/${post.postId}`}
+                          className="flex-1 font-medium text-blue-600 hover:underline truncate"
+                      >
+                        {post.title} {' '}
+                        <span
+                            className="text-red-500">[{post.commentCount}]
+                        </span>
+
+                      </Link>
+
+                      {/* 작성자 */}
+                      <div
+                          className="w-28 text-center text-gray-600 truncate">{post.nickName}</div>
+
+                      {/* 날짜 */}
+                      <div className="w-32 text-center text-gray-500">
+                        {new Date(post.createAt).toLocaleDateString()}
+                      </div>
+
+                      {/* 조회수 */}
+                      <div
+                          className="w-24 text-right text-gray-500">{post.views.toLocaleString()}
                       </div>
                     </div>
                 ))}

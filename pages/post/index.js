@@ -1,32 +1,31 @@
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import api from "@/utils/axios";
 import Link from "next/link";
+import api from "@/utils/axios";
 
-const API_URL = "/api/boards";
-
-export default function BoardPosts() {
-  const router = useRouter();
-  const { boardId } = router.query;
+export default function AllPostsPage() {
   const [posts, setPosts] = useState([]);
   const [sortOption, setSortOption] = useState("createdAt,DESC");
-  const [title, setTitle] = useState();
 
-  const [page, setPage] = useState(0); // 현재 페이지
-  const [totalPages, setTotalPages] = useState(1); // 전체 페이지 수
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    if (boardId) {
-      api
-      .get(`${API_URL}/${boardId}/posts?page=${page}&sort=${sortOption}`)
-      .then((res) => {
-        setPosts(res.data.posts.content.filter((post) => !post.isDelete));
-        setTotalPages(res.data.posts.totalPages);
-        setTitle(res.data.boardInfo.title);
-      })
-      .catch((err) => console.error("게시글 목록 불러오기 실패:", err));
-    }
-  }, [boardId, sortOption, page]);
+    api
+    .get(`/api/posts`, {
+      params: {
+        page,
+        size: 10,
+        sort: sortOption,
+      },
+    })
+    .then((res) => {
+      setPosts(res.data.content);
+      setTotalPages(res.data.totalPages);
+    })
+    .catch((err) => {
+      console.error("전체 게시글 불러오기 실패:", err);
+    });
+  }, [sortOption, page]);
 
   const handleFirstPage = () => setPage(0);
   const handlePrevPage = () => setPage((prev) => Math.max(prev - 1, 0));
@@ -35,24 +34,18 @@ export default function BoardPosts() {
   return (
       <div className="bg-gray-100 min-h-screen py-6">
         <div className="max-w-3xl mx-auto bg-white border rounded shadow p-6">
-          {/* 상단 헤딩 */}
+          {/* 헤더 */}
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold"> {title}</h1>
-            <Link
-                href={`/boards/${boardId}/new`}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              ✏️ 새 글 작성
-            </Link>
+            <h1 className="text-2xl font-bold">전체 게시글</h1>
           </div>
 
-          {/* 정렬 선택 */}
+          {/* 정렬 */}
           <div className="mb-4">
             <select
                 value={sortOption}
                 onChange={(e) => {
                   setSortOption(e.target.value);
-                  setPage(0); // 정렬 변경 시 첫 페이지로
+                  setPage(0);
                 }}
                 className="border px-2 py-1 rounded"
             >
@@ -69,26 +62,29 @@ export default function BoardPosts() {
             ) : (
                 posts.map((post) => (
                     <div
-                        key={post.id}
+                        key={post.postId}
                         className="border border-gray-200 rounded p-4 hover:bg-gray-50 transition"
                     >
                       <Link href={`/post/${post.postId}`}>
                         <div className="cursor-pointer">
-                          <h2 className="text-lg font-semibold">{post.title} {' '}
-                            <span
-                                className="text-red-500">[{post.commentCount}]
-                        </span></h2>
+                          <h2 className="text-lg font-semibold">
+                            {post.title}{" "}
+                            <span className="text-red-500">[{post.commentCount}]</span>
+                          </h2>
                           <p className="text-sm text-gray-500">
-                            작성자: {post.nickName} | 작성일: {new Date(post.createAt).toLocaleString('ko-KR', {
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: false,
-                          })}
+                            작성자: {post.nickName} | 작성일:{" "}
+                            {new Date(post.createAt).toLocaleString("ko-KR", {
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: false,
+                            })}
                           </p>
-                          <p className="text-sm text-gray-500">조회수: {post.views}</p>
+                          <p className="text-sm text-gray-500">
+                            조회수: {post.views.toLocaleString()}
+                          </p>
                         </div>
                       </Link>
                     </div>
@@ -96,7 +92,7 @@ export default function BoardPosts() {
             )}
           </div>
 
-          {/* 페이징 버튼 */}
+          {/* 페이징 */}
           <div className="flex justify-center mt-6 space-x-2">
             <button
                 onClick={handleFirstPage}
@@ -112,7 +108,9 @@ export default function BoardPosts() {
             >
               이전
             </button>
-            <span className="px-3 py-1">{page + 1} / {totalPages}</span>
+            <span className="px-3 py-1">
+            {page + 1} / {totalPages}
+          </span>
             <button
                 onClick={handleNextPage}
                 disabled={page + 1 >= totalPages}
