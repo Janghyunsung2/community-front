@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import api from "@/utils/axios";
 import Link from "next/link";
+import {useAuth} from "@/contexts/AuthContext";
 
 const API_URL = "/api/boards";
 
@@ -11,6 +12,9 @@ export default function BoardPosts() {
   const [posts, setPosts] = useState([]);
   const [sortOption, setSortOption] = useState("createdAt,DESC");
   const [title, setTitle] = useState();
+
+  const { user } = useAuth();
+
 
   const [page, setPage] = useState(0); // 현재 페이지
   const [totalPages, setTotalPages] = useState(1); // 전체 페이지 수
@@ -32,18 +36,32 @@ export default function BoardPosts() {
   const handlePrevPage = () => setPage((prev) => Math.max(prev - 1, 0));
   const handleNextPage = () => setPage((prev) => Math.min(prev + 1, totalPages - 1));
 
+
+
+
   return (
       <div className="bg-gray-100 min-h-screen py-6">
         <div className="max-w-3xl mx-auto bg-white border rounded shadow p-6">
           {/* 상단 헤딩 */}
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold"> {title}</h1>
-            <Link
-                href={`/boards/${boardId}/new`}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              ✏️ 새 글 작성
-            </Link>
+          <div className="mb-4">
+            <h1 className="text-2xl font-bold mb-2">{title}</h1>
+            <div className="flex justify-end">
+              <button
+                  onClick={() => {
+                    if (!user) {
+                      const goToLogin = confirm('로그인이 필요한 기능입니다.\n로그인 하시겠습니까?');
+                      if (goToLogin) {
+                        router.push(`/login?redirect=/boards/${boardId}/new`);
+                      }
+                      return;
+                    }
+                    router.push(`/boards/${boardId}/new`);
+                  }}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                ✏️ 새 글 작성
+              </button>
+            </div>
           </div>
 
           {/* 정렬 선택 */}
@@ -79,7 +97,8 @@ export default function BoardPosts() {
                                 className="text-red-500">[{post.commentCount}]
                         </span></h2>
                           <p className="text-sm text-gray-500">
-                            작성자: {post.nickName} | 작성일: {new Date(post.createAt).toLocaleString('ko-KR', {
+                            작성자: {post.nickName} | 작성일: {new Date(
+                              post.createAt).toLocaleString('ko-KR', {
                             year: 'numeric',
                             month: '2-digit',
                             day: '2-digit',
