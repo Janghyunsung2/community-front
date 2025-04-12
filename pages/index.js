@@ -87,10 +87,11 @@ export default function Home() {
         <main className="flex-1 p-30 bg-gray-90">
           <div className="max-w-7xl mx-auto space-y-8">
             {/* 1. 조회순 게시글 */}
-            <section className="bg-white border rounded-lg shadow p-4">
-              <h2 className="text-lg font-semibold mb-4">조회순 게시글</h2>
+            <section
+                className="bg-white border-0 sm:border rounded-lg shadow p-4">
+              <h2 className="text-lg font-semibold mb-4">인기 게시글 🙌</h2>
               <div
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-700">
+                  className="grid grid-cols-3 gap-2 sm:gap-4 text-sm text-gray-700">
                 <PostList title="일간" posts={dailyPosts}/>
                 <PostList title="주간" posts={weeklyPosts}/>
                 <PostList title="월간" posts={monthlyPosts}/>
@@ -100,24 +101,29 @@ export default function Home() {
 
             {/* 2. 인기 게시판 */}
             <section className="bg-white border rounded-lg shadow p-4">
-              <h2 className="text-lg font-semibold mb-4">인기 게시판 순위</h2>
-              <ol className="list-decimal list-inside space-y-1 text-gray-700 text-sm">
-                {popularBoards.map(board => (
+              <h2 className="text-lg font-semibold mb-4">인기 게시판 순위️ ⬆️</h2>
+              <ul className="space-y-1 text-gray-700 text-sm">
+                {popularBoards.map((board, index) => (
                     <li key={board.id}>
-                      <Link href={`/boards/${board.id}/posts`}
-                            className="hover:underline text-blue-600">
-                        {board.title}
+                      <Link
+                          href={`/boards/${board.id}/posts`}
+                          className="flex items-center gap-2 hover:underline"
+                      >
+                        <span
+                            className="font-bold text-blue-500 w-5 text-right">{index
+                            + 1}.</span>
+                        <span className="truncate">{board.title}</span>
                       </Link>
                     </li>
                 ))}
-              </ol>
+              </ul>
             </section>
 
             {/* 3. 게시판 이미지 + 제목 */}
-            <section className="bg-white border rounded-lg shadow p-12">
+            <section
+                className="bg-white border-0 sm:border rounded-lg shadow p-6 sm:p-12">
               <h2 className="text-lg font-semibold mb-4">추천게시판</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[boardGroup1, boardGroup2].map((board, idx) => (
                     <div key={idx}>
                       <Link
@@ -126,21 +132,27 @@ export default function Home() {
                       >
                         <h3 className="font-semibold mb-2">{board.title}</h3>
                       </Link>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+
+                      {/* 가로 스크롤 컨테이너 */}
+                      <div
+                          className="flex overflow-x-auto space-x-4 pb-2 sm:grid sm:grid-cols-2 sm:space-x-0 sm:gap-4 sm:overflow-visible">
                         {board.posts?.map((post) => (
-                            <div key={post.id} className="flex flex-col items-center space-y-2">
-                              <img
-                                  src={
-                                      post.imageUrl ||
-                                      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSAySszMhWPAD-i4hov3Km4ss4Pvxjiacx6Q&s'
-                                  }
-                                  alt={post.title}
-                                  className="w-20 h-20 object-cover rounded"
-                              />
+
+                            <div
+                                key={post.id}
+                                className="flex-shrink-0 w-[160px] sm:w-auto flex flex-col items-center space-y-2"
+                            >
                               <Link
                                   href={`/post/${post.id}`}
                                   className="font-medium text-blue-600 hover:underline text-sm text-center"
                               >
+                                <img
+                                    src={post.imageUrl ||
+                                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSAySszMhWPAD-i4hov3Km4ss4Pvxjiacx6Q&s'}
+                                    alt={post.title}
+                                    className="w-[160px] h-[160px] sm:w-28 sm:h-28 object-cover rounded"
+                                />
+
                                 {post.title}
                               </Link>
                             </div>
@@ -180,8 +192,9 @@ export default function Home() {
               </div>
             </section>
 
-            <section className="bg-white border rounded-lg shadow p-6 sm:p-8">
-              <div className="flex justify-between items-center mb-6">
+            <section
+                className="bg-white border-0 sm:border rounded-lg shadow p-4 sm:p-6">
+              <div className="flex justify-between items-center mb-4 sm:mb-6">
                 <h2 className="text-xl sm:text-2xl font-semibold">전체 게시글</h2>
                 <Link href="/post"
                       className="text-sm text-blue-500 hover:underline">
@@ -192,7 +205,7 @@ export default function Home() {
               <div className="divide-y">
                 {allPosts.map((post) => (
                     <div key={post.postId}
-                         className="flex items-center py-3 text-sm text-gray-800">
+                         className="flex flex-wrap sm:flex-nowrap items-center gap-y-1 py-1 sm:py-3 text-sm text-gray-800">
                       {/* 제목 */}
                       <Link
                           href={`/post/${post.postId}`}
@@ -207,16 +220,16 @@ export default function Home() {
 
                       {/* 작성자 */}
                       <div
-                          className="w-28 text-center text-gray-600 truncate">{post.nickName}</div>
+                          className="w-20 text-center text-gray-600 truncate">{post.nickName}</div>
 
                       {/* 날짜 */}
-                      <div className="w-32 text-center text-gray-500">
+                      <div className="w-20 text-center text-gray-500">
                         {new Date(post.createAt).toLocaleDateString()}
                       </div>
 
                       {/* 조회수 */}
                       <div
-                          className="w-24 text-right text-gray-500">{post.views.toLocaleString()}
+                          className="w-8 text-right text-gray-500">{post.views.toLocaleString()}
                       </div>
                     </div>
                 ))}
@@ -234,9 +247,13 @@ function PostList({title, posts}) {
       <div>
         <h3 className="font-medium mb-2">{title}</h3>
         <ul>
-          {posts.map(post => (
+          {posts.map((post, index) => (
               <li key={post.id} className="hover:underline">
-                <Link href={`/post/${post.id}`}>{post.title}</Link>
+                <Link href={`/post/${post.id}`}>
+                  <span
+                      className="font-bold text-blue-500 w-5 text-right">{index
+                      + 1}.</span>
+                  . {post.title}</Link>
               </li>
           ))}
         </ul>

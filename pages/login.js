@@ -3,13 +3,16 @@ import { useRouter } from "next/router";
 import api from "@/utils/axios";
 import { AuthContext } from "../contexts/AuthContext";
 
+
+
 const LOGIN_API = "/api/auth/login"; // ✅ 로그인 API
 
 export default function Login() {
-  const router = useRouter();
   const { user, setUser } = useContext(AuthContext);
   const [form, setForm] = useState({ username: "", password: "" });
   const [ error, setError ] = useState(null);
+  const router = useRouter();
+  const { redirect } = router.query
 
   // 입력값 변경 핸들러
   const handleChange = (e) => {
@@ -18,20 +21,21 @@ export default function Login() {
   };
 
   // 로그인 요청 핸들러
-    const handleSubmit = (e) => {
-        e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        api.post(LOGIN_API, form, { withCredentials: true })
-            .then(() => {
-                console.log("로그인 성공");
-                setUser(true);
-                window.location.href = document.referrer || "/";
-            })
-            .catch((err) => {
-                console.error("로그인 실패:", err);
-                setError('로그인에 실패했습니다. 사용자명과 비밀번호를 확인하세요.');
-            });
-    };
+    try {
+      await api.post(LOGIN_API, form, { withCredentials: true });
+      console.log("로그인 성공");
+      setUser(true);
+
+      // redirect 파라미터 있으면 거기로, 없으면 메인으로
+      await router.push(redirect || "/");
+    } catch (err) {
+      console.error("로그인 실패:", err);
+      setError("로그인에 실패했습니다.");
+    }
+  };
 
 
     return (

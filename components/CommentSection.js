@@ -116,7 +116,7 @@ const CommentSection = ({ postId }) => {
                         </>
                     ) : (
                         <p className="text-sm text-gray-500">
-                            <Link href="/login" className="text-blue-600 hover:underline">로그인</Link> 후 대댓글을 작성할 수 있습니다.
+                            <Link href={`/login?redirect=/post/${postId}`} className="text-blue-600 hover:underline">로그인</Link> 후 대댓글을 작성할 수 있습니다.
                         </p>
                     )}
                 </div>
@@ -202,7 +202,7 @@ const CommentSection = ({ postId }) => {
           ) : (
               <p className="text-gray-600">
                 댓글을 작성하려면{" "}
-                <Link href="/login" className="text-blue-600 hover:underline">
+                <Link href={`/login?redirect=/post/${postId}`} className="text-blue-600 hover:underline">
                   로그인
                 </Link>{" "}
                 하세요.
